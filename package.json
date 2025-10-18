@@ -1,25 +1,28 @@
 {
   "name": "campuslearn_platform",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "main": "main.js",
   "scripts": {
+    "start": "node main.js",
+    "dev": "nodemon main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Bad Boys Binary Bytes and Company",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "bcryptjs": "^3.0.2",
-    "compression": "^1.8.1",
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "express-rate-limit": "^8.1.0",
-    "express-validator": "^7.2.1",
-    "helmet": "^8.1.0",
-    "install": "^0.13.0",
-    "jsonwebtoken": "^9.0.2",
+    "express": "^4.18.2",
     "mongoose": "^8.19.1",
-    "npm": "^11.6.2",
-    "uuid": "^13.0.0"
+    "bcryptjs": "^3.0.2",
+    "jsonwebtoken": "^9.0.2",
+    "uuid": "^13.0.0",
+    "express-validator": "^7.2.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.1.0",
+    "express-rate-limit": "^8.1.0",
+    "compression": "^1.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }

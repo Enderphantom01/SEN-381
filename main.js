@@ -1,4 +1,4 @@
-// main.js - CampusLearn Backend Server (Fixed 404 handler for Express 5)
+// main.js - CampusLearn Backend Server with MongoDB Connection
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -8,6 +8,22 @@ const compression = require('compression');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// MongoDB Connection
+const MONGODB_URI = 'mongodb://localhost:27017/campuslearnofficial';
+
+const connectToDatabase = async () => {
+    try {
+        await mongoose.connect(MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        });
+        console.log('✅ Connected to MongoDB: campuslearnofficial');
+    } catch (error) {
+        console.error('❌ MongoDB connection error:', error);
+        process.exit(1);
+    }
+};
 
 // Global Middleware Configuration
 app.use(helmet({
@@ -57,11 +73,14 @@ app.use((req, res, next) => {
 
 // Health check endpoint
 app.get('/health', (req, res) => {
+    const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+    
     res.status(200).json({
         status: 'OK',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
-        environment: process.env.NODE_ENV || 'development'
+        environment: process.env.NODE_ENV || 'development',
+        database: dbStatus
     });
 });
 
@@ -71,6 +90,7 @@ app.get('/api', (req, res) => {
         message: 'CampusLearn API', 
         status: 'Running',
         version: '1.0.0',
+        database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
         endpoints: [
             '/api/auth',
             '/api/users', 
@@ -91,57 +111,57 @@ const loadRoutes = () => {
         try {
             const authRoutes = require('./routes/auth');
             app.use('/api/auth', authRoutes);
-            console.log('Auth routes loaded');
+            console.log('✓ Auth routes loaded');
         } catch (error) {
-            console.error('Failed to load auth routes:', error.message);
+            console.error('✗ Failed to load auth routes:', error.message);
         }
 
         try {
             const userRoutes = require('./routes/users');
             app.use('/api/users', userRoutes);
-            console.log('User routes loaded');
+            console.log('✓ User routes loaded');
         } catch (error) {
-            console.error('Failed to load user routes:', error.message);
+            console.error('✗ Failed to load user routes:', error.message);
         }
 
         try {
             const topicRoutes = require('./routes/topics');
             app.use('/api/topics', topicRoutes);
-            console.log('Topic routes loaded');
+            console.log('✓ Topic routes loaded');
         } catch (error) {
-            console.error('Failed to load topic routes:', error.message);
+            console.error('✗ Failed to load topic routes:', error.message);
         }
 
         try {
             const forumRoutes = require('./routes/forum');
             app.use('/api/forum', forumRoutes);
-            console.log('Forum routes loaded');
+            console.log('✓ Forum routes loaded');
         } catch (error) {
-            console.error('Failed to load forum routes:', error.message);
+            console.error('✗ Failed to load forum routes:', error.message);
         }
 
         try {
             const messageRoutes = require('./routes/messages');
             app.use('/api/messages', messageRoutes);
-            console.log('Message routes loaded');
+            console.log('✓ Message routes loaded');
         } catch (error) {
-            console.error('Failed to load message routes:', error.message);
+            console.error('✗ Failed to load message routes:', error.message);
         }
 
         try {
             const notificationModule = require('./routes/notifications');
             app.use('/api/notifications', notificationModule.router);
-            console.log('Notification routes loaded');
+            console.log('✓ Notification routes loaded');
         } catch (error) {
-            console.error('Failed to load notification routes:', error.message);
+            console.error('✗ Failed to load notification routes:', error.message);
         }
 
         try {
             const adminRoutes = require('./routes/admin');
             app.use('/api/admin', adminRoutes);
-            console.log('Admin routes loaded');
+            console.log('✓ Admin routes loaded');
         } catch (error) {
-            console.error('Failed to load admin routes:', error.message);
+            console.error('✗ Failed to load admin routes:', error.message);
         }
 
     } catch (error) {
@@ -152,9 +172,8 @@ const loadRoutes = () => {
 // Load routes
 loadRoutes();
 
-// 404 handler - FIXED for Express 5
-
-app.use((req, res, next) => {
+// 404 handler
+app.use((req, res) => {
     res.status(404).json({
         error: 'Route not found',
         message: `The route ${req.originalUrl} does not exist.`,
@@ -182,10 +201,15 @@ app.use((error, req, res, next) => {
 // Server startup
 const startServer = async () => {
     try {
+        // Connect to database first
+        await connectToDatabase();
+        
+        // Then start the server
         app.listen(PORT, () => {
             console.log(`=== CampusLearn Backend Server ===`);
             console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode`);
             console.log(`Port: ${PORT}`);
+            console.log(`Database: ${MONGODB_URI}`);
             console.log(`Health check: http://localhost:${PORT}/health`);
             console.log(`API Base: http://localhost:${PORT}/api`);
             console.log(`=====================================`);
@@ -197,13 +221,15 @@ const startServer = async () => {
 };
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
     console.log('SIGTERM received, shutting down gracefully');
+    await mongoose.connection.close();
     process.exit(0);
 });
 
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
     console.log('SIGINT received, shutting down gracefully');
+    await mongoose.connection.close();
     process.exit(0);
 });
 
