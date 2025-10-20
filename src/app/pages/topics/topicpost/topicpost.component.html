@@ -1,0 +1,74 @@
+<div class="flex flex-col h-screen bg-[#3c4149] font-sans text-white overflow-hidden">
+  <!-- Header Banner -->
+  <header class="flex-shrink-0 flex justify-end items-center space-x-2 sm:space-x-4 px-6 py-3">
+    <button class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-slate-700/80 backdrop-blur-sm rounded-full hover:bg-slate-600 transition-colors">
+      <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+    </button>
+    <button class="relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-slate-700/80 backdrop-blur-sm rounded-full hover:bg-slate-600 transition-colors">
+      <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+      <span class="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 block h-3 w-3 rounded-full bg-teal-400 ring-2 ring-slate-700"></span>
+    </button>
+    <div class="flex items-center space-x-3 px-4 py-2 bg-slate-200 backdrop-blur-sm rounded-full">
+      <div class="w-8 h-8 flex items-center justify-center bg-slate-400 rounded-full">
+        <svg class="w-5 h-5 text-slate-800" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+      </div>
+      <span class="font-semibold hidden sm:inline text-slate-800">Me</span>
+    </div>
+  </header>
+  
+  <!-- Page Content -->
+  <main class="flex-grow p-6 flex flex-col items-center justify-center text-slate-800">
+    <div class="bg-[#e0e1e2] rounded-3xl shadow-lg p-8 w-full max-w-5xl relative" 
+         style="background-image: linear-gradient(45deg, rgba(175,175,175,0.2) 25%, transparent 25%, transparent 50%, rgba(175,175,175,0.2) 50%, rgba(175,175,175,0.2) 75%, transparent 75%, transparent); background-size: 30px 30px;">
+      
+      <div class="bg-slate-800 text-white py-3 px-8 rounded-2xl shadow-md absolute top-0 left-8 -translate-y-1/2">
+        <h1 class="text-3xl font-bold">New Topic</h1>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+        <!-- Left Column -->
+        <div class="flex flex-col space-y-6">
+          <div class="flex items-start space-x-6">
+            <div class="w-40 h-40 bg-white rounded-2xl shadow-md border border-slate-300 flex items-center justify-center text-slate-500">
+              Topic Image
+            </div>
+            <input type="text" placeholder="Enter Name" class="flex-grow bg-slate-300/70 border border-slate-400 rounded-full py-4 px-6 text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500 shadow-inner mt-4">
+          </div>
+          <div class="bg-white rounded-2xl shadow-md p-6 flex-grow">
+            <h2 class="text-xl font-bold mb-2">About Topic:</h2>
+            <textarea class="w-full h-48 bg-transparent text-slate-700 focus:outline-none resize-none">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean massa massa, venenatis quis fringilla ut, vulputate ac massa. Maecenas scelerisque ex viverra sollicitudin maximus. Fusce iaculis accumsan tincidunt.</textarea>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="bg-white rounded-2xl shadow-md p-6 flex flex-col">
+          <div class="bg-slate-800 text-white py-2 px-6 rounded-full self-start shadow-md mb-4">
+            <h2 class="text-xl font-semibold">Add Courses:</h2>
+          </div>
+          <div class="relative w-full mb-4">
+            <input type="text" placeholder="Search" class="w-full bg-slate-200 border border-slate-300 rounded-full py-2 pl-10 pr-4 text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400 shadow-inner">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3">
+              <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+          </div>
+          <div class="flex-grow overflow-y-auto pr-2">
+            <ul class="text-slate-700 font-medium space-y-3">
+              @for(course of courses(); track course.code) {
+                <li>{{ course.name }} ({{ course.code }})</li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex justify-center items-center space-x-6 mt-8">
+        <button class="bg-slate-300 hover:bg-slate-400/80 text-slate-800 font-bold py-3 px-12 rounded-full shadow-md transition-colors text-lg">
+          Cancel
+        </button>
+        <button class="bg-slate-300 hover:bg-slate-400/80 text-slate-800 font-bold py-3 px-12 rounded-full shadow-md transition-colors text-lg">
+          Add
+        </button>
+      </div>
+    </div>
+  </main>
+</div>

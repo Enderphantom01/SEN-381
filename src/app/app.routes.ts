@@ -15,28 +15,32 @@ export const routes: Routes = [
   { 
     path: 'home', 
     loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent),
-    canActivate: [authGuard] // Add auth guard here
+    canActivate: [authGuard] 
   },
   { 
     path: 'chats', 
     loadComponent: () => import('./pages/chat/chat.component').then(m => m.ChatComponent),
-    canActivate: [authGuard] // Add auth guard here
+    canActivate: [authGuard]
   },
   { 
     path: 'api-test', 
     loadComponent: () => import('./pages/api-test/api-test.component').then(m => m.ApiTestComponent)
-  },/*
+  },
   { 
     path: 'courses', 
     loadComponent: () => import('./pages/courses/courses.component').then(m => m.CoursesComponent)
   },
   { 
-    path: 'forum', 
-    loadComponent: () => import('./pages/forum/forum.component').then(m => m.ForumComponent)
+    path: 'course', 
+    loadComponent: () => import('./pages/courses/course/course.component').then(m => m.CourseComponent)
   },
   { 
     path: 'topics', 
     loadComponent: () => import('./pages/topics/topics.component').then(m => m.TopicsComponent)
+  },
+  { 
+    path: 'forum', 
+    loadComponent: () => import('./pages/forum/forum.component').then(m => m.ForumComponent)
   },
   { 
     path: 'profile', 
@@ -45,6 +49,6 @@ export const routes: Routes = [
   { 
     path: 'settings', 
     loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent)
-  },*/
+  },
   { path: '**', redirectTo: '/login' } // Fallback route
 ];

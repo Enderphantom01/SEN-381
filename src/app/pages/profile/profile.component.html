@@ -1,0 +1,48 @@
+<div class="bg-[#1A202C] text-gray-200 font-sans min-h-screen flex items-center justify-center p-8 relative overflow-hidden" 
+     style="background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.03) 50%, rgba(255, 255, 255, 0.03) 75%, transparent 75%, transparent); background-size: 40px 40px;">
+  
+  <div class="absolute left-6 top-0 bottom-0 w-px bg-gray-600/50"></div>
+
+  <main class="w-full max-w-4xl px-8">
+    <div class="grid grid-cols-2 gap-x-12 gap-y-8 items-start">
+      <!-- Header -->
+      <div class="col-span-1">
+        <h1 class="text-4xl font-bold">CampusLearn</h1>
+        <div class="relative mt-4 w-[280px] h-[70px]">
+          <svg class="absolute inset-0" viewBox="0 0 220 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 1H180C191.046 1 200 9.95431 200 21V21C200 32.0457 191.046 41 180 41H20C9.95431 41 1 32.0457 1 21V21C1 9.95431 9.95431 1 20 1Z" stroke="white" stroke-width="1.5"/>
+            <path d="M180 40C175 45, 165 48, 155 48" stroke="white" stroke-width="1.5"/>
+          </svg>
+          <span class="absolute top-[21px] left-6 transform -translate-y-1/2 text-lg text-gray-300">Knowledge Without Limits</span>
+        </div>
+      </div>
+
+      <!-- Profile Picture -->
+      <div class="col-span-1 flex justify-center items-start pt-4">
+        <div class="w-32 h-32 bg-[#2D3748] rounded-full flex flex-col items-center justify-center text-center p-2 text-gray-400">
+          <span class="text-sm">Upload</span>
+          <span class="text-sm">Profile Picture</span>
+        </div>
+      </div>
+
+      <!-- Form Fields -->
+      <div class="col-span-2 grid grid-cols-2 gap-6">
+        <input type="text" placeholder="First Name" class="bg-[#2D3748] rounded-full py-4 px-6 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500">
+        <input type="text" placeholder="Surname" class="bg-[#2D3748] rounded-full py-4 px-6 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500">
+        <input type="text" placeholder="Courses" class="bg-[#2D3748] rounded-full py-4 px-6 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500">
+        <input type="text" placeholder="Mobile" class="bg-[#2D3748] rounded-full py-4 px-6 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500">
+      </div>
+
+      <!-- Short Bio -->
+      <div class="col-span-2">
+        <textarea placeholder="Short Bio" class="w-full h-32 bg-[#2D3748] rounded-3xl py-4 px-6 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none"></textarea>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <footer class="flex items-center justify-center space-x-6 mt-12">
+      <button class="bg-[#14f195] hover:bg-opacity-90 text-slate-900 font-bold py-3 px-10 rounded-full shadow-lg transition-transform hover:scale-105">Save Changes</button>
+      <button class="bg-[#2D3748] hover:bg-slate-600 text-gray-200 font-bold py-3 px-10 rounded-full shadow-lg transition-transform hover:scale-105">Cancel</button>
+    </footer>
+  </main>
+</div>

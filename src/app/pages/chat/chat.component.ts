@@ -125,13 +125,11 @@ export class ChatComponent implements OnInit {
   }
 
   navigateToCourses(): void {
-    // TODO: Implement courses navigation
-    console.log('Navigate to courses');
+    this.router.navigate(['/courses']);
   }
 
   navigateToTopics(): void {
-    // TODO: Implement topics navigation
-    console.log('Navigate to topics');
+    this.router.navigate(['/topics']);
   }
 
   navigateToChats(): void {
@@ -139,8 +137,7 @@ export class ChatComponent implements OnInit {
   }
 
   navigateToForum(): void {
-    // TODO: Implement forum navigation
-    console.log('Navigate to forum');
+    this.router.navigate(['/forum']);
   }
 
   selectContact(id: number): void {

@@ -32,6 +32,45 @@ export interface ApiResponse {
   [key: string]: any;
 }
 
+export interface Course {
+  _id?: string;
+  name: string;
+  image: string;
+  description?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  modules?: Module[];
+}
+
+export interface Module {
+  _id?: string;
+  courseId: string;
+  name: string;
+  description?: string;
+  order?: number;
+  isActive?: boolean;
+  createdAt?: string;
+  contentItems?: ContentItem[];
+}
+
+export interface ContentItem {
+  _id?: string;
+  moduleId: string;
+  courseId: string;
+  title: string;
+  description?: string;
+  fileType: 'powerpoint' | 'markdown' | 'pdf' | 'word' | 'excel' | 'image' | 'video' | 'audio' | 'text' | 'other';
+  fileUrl: string;
+  fileName: string;
+  fileSize: number;
+  order?: number;
+  isActive?: boolean;
+  uploadedBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -72,6 +111,17 @@ export class ApiService {
     let headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });
+
+    if (this.sessionId) {
+      headers = headers.set('Authorization', `Bearer ${this.sessionId}`);
+    }
+
+    return headers;
+  }
+
+  private getHeadersForUpload(): HttpHeaders {
+    let headers = new HttpHeaders();
+    // Don't set Content-Type for multipart/form-data - let browser set it with boundary
 
     if (this.sessionId) {
       headers = headers.set('Authorization', `Bearer ${this.sessionId}`);
@@ -130,6 +180,82 @@ export class ApiService {
 
   updateUserProfile(profileData: any): Observable<any> {
     return this.http.put(`${this.baseUrl}/users/profile`, profileData, { headers: this.getHeaders() });
+  }
+
+  // COURSE MANAGEMENT METHODS
+
+  // Course Methods
+  getCourses(): Observable<Course[]> {
+    return this.http.get<Course[]>(`${this.baseUrl}/courses`, { headers: this.getHeaders() });
+  }
+
+  getCourse(id: string): Observable<Course> {
+    return this.http.get<Course>(`${this.baseUrl}/courses/${id}`, { headers: this.getHeaders() });
+  }
+
+  createCourse(courseData: Partial<Course>): Observable<Course> {
+    return this.http.post<Course>(`${this.baseUrl}/courses`, courseData, { headers: this.getHeaders() });
+  }
+
+  updateCourse(id: string, courseData: Partial<Course>): Observable<Course> {
+    return this.http.put<Course>(`${this.baseUrl}/courses/${id}`, courseData, { headers: this.getHeaders() });
+  }
+
+  // Module Methods
+  getModules(courseId: string): Observable<Module[]> {
+    return this.http.get<Module[]>(`${this.baseUrl}/modules/course/${courseId}`, { headers: this.getHeaders() });
+  }
+
+  createModule(moduleData: Partial<Module>): Observable<Module> {
+    return this.http.post<Module>(`${this.baseUrl}/modules`, moduleData, { headers: this.getHeaders() });
+  }
+
+  updateModule(id: string, moduleData: Partial<Module>): Observable<Module> {
+    return this.http.put<Module>(`${this.baseUrl}/modules/${id}`, moduleData, { headers: this.getHeaders() });
+  }
+
+  // Content Methods
+  getContentItems(moduleId: string): Observable<ContentItem[]> {
+    return this.http.get<ContentItem[]>(`${this.baseUrl}/content/module/${moduleId}`, { headers: this.getHeaders() });
+  }
+
+  getContentItem(id: string): Observable<ContentItem> {
+    return this.http.get<ContentItem>(`${this.baseUrl}/content/${id}`, { headers: this.getHeaders() });
+  }
+
+  uploadContent(file: File, uploadData: {
+    moduleId: string;
+    courseId: string;
+    title?: string;
+    description?: string;
+    uploadedBy?: string;
+  }): Observable<ContentItem> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('moduleId', uploadData.moduleId);
+    formData.append('courseId', uploadData.courseId);
+    
+    if (uploadData.title) {
+      formData.append('title', uploadData.title);
+    }
+    if (uploadData.description) {
+      formData.append('description', uploadData.description);
+    }
+    if (uploadData.uploadedBy) {
+      formData.append('uploadedBy', uploadData.uploadedBy);
+    }
+
+    return this.http.post<ContentItem>(`${this.baseUrl}/content/upload`, formData, {
+      headers: this.getHeadersForUpload()
+    });
+  }
+
+  updateContentItem(id: string, contentData: Partial<ContentItem>): Observable<ContentItem> {
+    return this.http.put<ContentItem>(`${this.baseUrl}/content/${id}`, contentData, { headers: this.getHeaders() });
+  }
+
+  deleteContentItem(id: string): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/content/${id}`, { headers: this.getHeaders() });
   }
 
   // Topics Methods
@@ -258,5 +384,13 @@ export class ApiService {
   // Test connection method
   testConnection(): Observable<any> {
     return this.http.get('http://localhost:3000/health');
+  }
+
+  // File URL helper method
+  getFileUrl(filePath: string): string {
+    if (filePath.startsWith('http')) {
+      return filePath;
+    }
+    return `http://localhost:3000${filePath}`;
   }
 }

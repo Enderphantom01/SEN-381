@@ -1,0 +1,121 @@
+<!-- src/app/pages/course/course.component.html -->
+<div class="flex h-screen bg-slate-800 font-sans text-white overflow-hidden">
+  <!-- Sidebar -->
+  <aside class="group relative w-5 hover:w-64 transition-all duration-300 ease-in-out bg-slate-900/80 backdrop-blur-md flex flex-col p-3 shadow-2xl z-30">
+    <div class="flex flex-col h-full invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 delay-100">
+        <!-- Logo -->
+        <div class="flex-shrink-0 flex flex-col items-center mb-8">
+            <div class="w-full bg-slate-700/50 rounded-2xl p-3 text-center">
+                <h1 class="text-2xl font-bold">CampusLearn</h1>
+                <div class="relative mt-2 w-full h-8 flex items-center justify-center">
+                    <svg class="absolute w-full h-full" viewBox="0 0 150 30" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                        <path d="M1 15C1 6.71573 7.71573 1 16 1H134C142.284 1 149 7.71573 149 16" stroke="white" stroke-width="2"/>
+                    </svg>
+                    <p class="text-xs tracking-wider whitespace-nowrap">Knowledge Without Limits</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-grow flex flex-col justify-center items-center space-y-4">
+            <a href="#" class="flex items-center p-3 rounded-lg hover:bg-slate-700 transition-colors w-52" (click)="navigateToHome(); $event.preventDefault()">
+                <svg class="w-8 h-8 text-cyan-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                <span class="ml-4 text-lg font-semibold whitespace-nowrap">Home</span>
+            </a>
+            <a href="#" class="flex items-center p-3 rounded-lg bg-slate-700 transition-colors w-52">
+                <svg class="w-8 h-8 text-cyan-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                <span class="ml-4 text-lg font-semibold whitespace-nowrap">Courses</span>
+            </a>
+            <a href="#" class="flex items-center p-3 rounded-lg hover:bg-slate-700 transition-colors w-52" (click)="navigateToTopics(); $event.preventDefault()">
+                <svg class="w-8 h-8 text-yellow-300 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                <span class="ml-4 text-lg font-semibold whitespace-nowrap">Topics</span>
+            </a>
+            <a href="#" class="flex items-center p-3 rounded-lg hover:bg-slate-700 transition-colors w-52" (click)="navigateToChats(); $event.preventDefault()">
+                <svg class="w-8 h-8 text-orange-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clip-rule="evenodd"></path></svg>
+                <span class="ml-4 text-lg font-semibold whitespace-nowrap">Chats</span>
+            </a>
+            <a href="#" class="flex items-center p-3 rounded-lg hover:bg-slate-700 transition-colors w-52" (click)="navigateToForum(); $event.preventDefault()">
+                <svg class="w-8 h-8 text-green-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.546-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="ml-4 text-lg font-semibold whitespace-nowrap">Forum</span>
+            </a>
+        </nav>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex-grow flex flex-col overflow-hidden">
+    <!-- Header Banner -->
+    <header class="flex-shrink-0 flex justify-between items-center px-6 py-3 border-b border-slate-700/50">
+      <!-- Welcome message -->
+      <div class="text-white">
+        <h1 class="text-xl font-bold">Course - {{ getUserDisplayName() }}</h1>
+        <p class="text-sm text-gray-400">Continue your learning journey</p>
+      </div>
+
+      <!-- Right side buttons -->
+      <div class="flex items-center space-x-2 sm:space-x-4">
+        <button class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-slate-700/80 backdrop-blur-sm rounded-full hover:bg-slate-600 transition-colors">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        </button>
+        <button class="relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-slate-700/80 backdrop-blur-sm rounded-full hover:bg-slate-600 transition-colors">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+          <span class="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 block h-3 w-3 rounded-full bg-teal-400 ring-2 ring-slate-700"></span>
+        </button>
+        <div class="flex items-center space-x-3 px-4 py-2 bg-slate-700/80 backdrop-blur-sm rounded-full cursor-pointer hover:bg-slate-600 transition-colors" (click)="logout()">
+          <div class="w-8 h-8 flex items-center justify-center bg-slate-500 rounded-full">
+            <svg class="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+          </div>
+          <span class="font-semibold hidden sm:inline">Logout</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="flex-grow p-6 overflow-y-auto">
+      <div class="bg-[#e0e1e2] rounded-2xl text-slate-800 flex h-full shadow-lg overflow-hidden">
+        <!-- Left Column: Navigation -->
+        <div class="w-[20%] bg-slate-300/50 p-4 border-r border-slate-400/30 overflow-y-auto">
+          <div class="space-y-2">
+            @for(section of sections(); track section.id) {
+              <div>
+                <button (click)="toggleSection(section.id)" class="w-full text-left flex justify-between items-center p-3 rounded-lg font-bold text-lg transition-colors"
+                  [class]="activeSectionId() === section.id ? 'bg-slate-700 text-white' : 'hover:bg-slate-400/50'">
+                  <span>{{ section.title }}</span>
+                  <svg class="w-5 h-5 transition-transform" [class.rotate-180]="activeSectionId() === section.id" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                @if (activeSectionId() === section.id) {
+                  <div class="pl-4 mt-2 space-y-1 border-l-2 border-slate-500 ml-2">
+                    @for(lesson of section.lessons; track lesson.id) {
+                      <button (click)="selectLesson(lesson)" class="w-full text-left py-2 px-3 rounded-md text-sm font-medium transition-colors"
+                        [class]="activeLesson()?.id === lesson.id ? 'bg-cyan-500 text-white shadow' : 'hover:bg-slate-400/50'">
+                        {{ lesson.title }}
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Right Column: Content -->
+        <div class="w-[80%] p-8 overflow-y-auto">
+          @if (activeLesson(); as lesson) {
+            <div class="prose max-w-none prose-slate">
+              <h1 class="text-4xl font-bold text-slate-900 border-b-2 border-slate-400 pb-2 mb-6">{{ lesson.title }}</h1>
+              <div class="text-slate-800 text-lg leading-relaxed whitespace-pre-line">{{ lesson.content }}</div>
+            </div>
+          } @else {
+            <div class="flex items-center justify-center h-full text-slate-500">
+              <div class="text-center">
+                <svg class="w-16 h-16 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                <h2 class="text-2xl font-semibold">Welcome to your course!</h2>
+                <p class="mt-2">Select a lesson from the left to get started.</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

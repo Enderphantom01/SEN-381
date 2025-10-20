@@ -1,0 +1,85 @@
+<div class="bg-[#1A202C] text-gray-200 font-sans min-h-screen p-8 relative overflow-hidden" 
+     style="background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.03) 50%, rgba(255, 255, 255, 0.03) 75%, transparent 75%, transparent); background-size: 40px 40px;">
+      
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <header class="flex items-center space-x-4 mb-10">
+      <div class="bg-slate-800 p-2 rounded-lg flex-shrink-0">
+        <span class="text-2xl font-bold text-teal-400 px-1">CL</span>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold">CampusLearn</h1>
+        <h2 class="text-3xl font-light text-gray-300 -mt-1">Settings</h2>
+      </div>
+    </header>
+
+    <!-- Settings Panels -->
+    <div class="space-y-8">
+      <!-- Application Preferences -->
+      <div class="bg-[#2D3748] rounded-2xl p-6 shadow-lg">
+        <h3 class="flex items-center space-x-3 text-xl font-semibold mb-2">
+          <span class="bg-teal-400 w-1.5 h-6 rounded-full"></span>
+          <span>Application Preferences</span>
+        </h3>
+        <div class="divide-y divide-slate-600/70">
+          <!-- Notification Sound -->
+          <div class="flex justify-between items-center py-4">
+            <div>
+              <p class="font-medium text-white">Notification Sound</p>
+              <p class="text-sm text-gray-400">Play sound for new messages, alerts or reminders.</p>
+            </div>
+            <button (click)="toggleSetting('notificationSound')" role="switch" [attr.aria-checked]="settings().notificationSound" class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#2D3748] focus:ring-teal-500" [class]="settings().notificationSound ? 'bg-teal-500' : 'bg-gray-600'">
+              <span class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform" [class]="settings().notificationSound ? 'translate-x-6' : 'translate-x-1'"></span>
+            </button>
+          </div>
+          <!-- Do Not Disturb -->
+          <div class="flex justify-between items-center py-4">
+            <div>
+              <p class="font-medium text-white">Do Not Disturb (Study Mode)</p>
+              <p class="text-sm text-gray-400">Mute all alerts while you are studying</p>
+            </div>
+            <button (click)="toggleSetting('doNotDisturb')" role="switch" [attr.aria-checked]="settings().doNotDisturb" class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#2D3748] focus:ring-teal-500" [class]="settings().doNotDisturb ? 'bg-teal-500' : 'bg-gray-600'">
+              <span class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform" [class]="settings().doNotDisturb ? 'translate-x-6' : 'translate-x-1'"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Privacy & Chats -->
+      <div class="bg-[#2D3748] rounded-2xl p-6 shadow-lg">
+        <h3 class="flex items-center space-x-3 text-xl font-semibold mb-2">
+          <span class="bg-teal-400 w-1.5 h-6 rounded-full"></span>
+          <span>Privacy & Chats</span>
+        </h3>
+        <div class="divide-y divide-slate-600/70">
+          <!-- Show Online Status -->
+          <div class="flex justify-between items-center py-4">
+            <div>
+              <p class="font-medium text-white">Show Online Status</p>
+              <p class="text-sm text-gray-400">Let others see when you're active.</p>
+            </div>
+            <button (click)="toggleSetting('showOnlineStatus')" role="switch" [attr.aria-checked]="settings().showOnlineStatus" class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#2D3748] focus:ring-teal-500" [class]="settings().showOnlineStatus ? 'bg-teal-500' : 'bg-gray-600'">
+              <span class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform" [class]="settings().showOnlineStatus ? 'translate-x-6' : 'translate-x-1'"></span>
+            </button>
+          </div>
+          <!-- Auto-Join Course Chats -->
+          <div class="flex justify-between items-center py-4">
+            <div>
+              <p class="font-medium text-white">Auto-Join Course Chats</p>
+              <p class="text-sm text-gray-400">Join the chat when you enroll in a course.</p>
+            </div>
+            <button (click)="toggleSetting('autoJoinChats')" role="switch" [attr.aria-checked]="settings().autoJoinChats" class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#2D3748] focus:ring-teal-500" [class]="settings().autoJoinChats ? 'bg-teal-500' : 'bg-gray-600'">
+              <span class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform" [class]="settings().autoJoinChats ? 'translate-x-6' : 'translate-x-1'"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <footer class="flex items-center justify-center space-x-6 mt-12">
+      <button class="bg-[#14f195] hover:bg-opacity-90 text-slate-900 font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105">Save Changes</button>
+      <button class="bg-[#2D3748] hover:bg-slate-600 text-gray-200 font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105">Reset to Default</button>
+    </footer>
+  </div>
+</div>

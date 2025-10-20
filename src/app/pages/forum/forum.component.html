@@ -1,0 +1,166 @@
+<!-- src/app/pages/forum/forum.component.html -->
+<div class="flex h-screen bg-slate-800 font-sans text-white overflow-hidden">
+  <!-- Sidebar -->
+  <aside class="group relative w-5 hover:w-64 transition-all duration-300 ease-in-out bg-slate-900/80 backdrop-blur-md flex flex-col p-3 shadow-2xl z-30">
+    <div class="flex flex-col h-full invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 delay-100">
+      <!-- Logo -->
+      <div class="flex-shrink-0 flex flex-col items-center mb-8">
+        <div class="w-full bg-slate-700/50 rounded-2xl p-3 text-center">
+          <h1 class="text-2xl font-bold">CampusLearn</h1>
+          <div class="relative mt-2 w-full h-8 flex items-center justify-center">
+            <svg class="absolute w-full h-full" viewBox="0 0 150 30" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+              <path d="M1 15C1 6.71573 7.71573 1 16 1H134C142.284 1 149 7.71573 149 16" stroke="white" stroke-width="2" />
+            </svg>
+            <p class="text-xs tracking-wider whitespace-nowrap">Knowledge Without Limits</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex-grow flex flex-col justify-center items-center space-y-4">
+        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-slate-700 transition-colors w-52" (click)="navigateToHome(); $event.preventDefault()">
+          <svg class="w-8 h-8 text-cyan-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+          </svg>
+          <span class="ml-4 text-lg font-semibold whitespace-nowrap">Home</span>
+        </a>
+        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-slate-700 transition-colors w-52" (click)="navigateToCourses(); $event.preventDefault()">
+          <svg class="w-8 h-8 text-cyan-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+          </svg>
+          <span class="ml-4 text-lg font-semibold whitespace-nowrap">Courses</span>
+        </a>
+        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-slate-700 transition-colors w-52" (click)="navigateToTopics(); $event.preventDefault()">
+          <svg class="w-8 h-8 text-yellow-300 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+          </svg>
+          <span class="ml-4 text-lg font-semibold whitespace-nowrap">Topics</span>
+        </a>
+        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-slate-700 transition-colors w-52" (click)="navigateToChats(); $event.preventDefault()">
+          <svg class="w-8 h-8 text-orange-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clip-rule="evenodd"></path>
+          </svg>
+          <span class="ml-4 text-lg font-semibold whitespace-nowrap">Chats</span>
+        </a>
+        <a href="#" class="flex items-center p-3 rounded-lg bg-slate-700 transition-colors w-52">
+          <svg class="w-8 h-8 text-green-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.546-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span class="ml-4 text-lg font-semibold whitespace-nowrap">Forum</span>
+        </a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex-grow flex flex-col overflow-hidden">
+    <!-- Header Banner -->
+    <header class="flex-shrink-0 flex justify-between items-center px-6 py-3 border-b border-slate-700/50">
+      <!-- Welcome message -->
+      <div class="text-white">
+        <h1 class="text-xl font-bold">Forum - {{ getUserDisplayName() }}</h1>
+        <p class="text-sm text-gray-400">Connect and discuss with the community</p>
+      </div>
+
+      <!-- Right side buttons -->
+      <div class="flex items-center space-x-2 sm:space-x-4">
+        <button class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-slate-700/80 backdrop-blur-sm rounded-full hover:bg-slate-600 transition-colors">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        </button>
+        <button class="relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-slate-700/80 backdrop-blur-sm rounded-full hover:bg-slate-600 transition-colors">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+          <span class="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 block h-3 w-3 rounded-full bg-teal-400 ring-2 ring-slate-700"></span>
+        </button>
+        <div class="flex items-center space-x-3 px-4 py-2 bg-slate-700/80 backdrop-blur-sm rounded-full cursor-pointer hover:bg-slate-600 transition-colors" (click)="logout()">
+          <div class="w-8 h-8 flex items-center justify-center bg-slate-500 rounded-full">
+            <svg class="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+          </div>
+          <span class="font-semibold hidden sm:inline">Logout</span>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Page Content -->
+    <main class="flex-grow p-6 overflow-y-auto text-slate-800">
+      <div class="grid grid-cols-3 gap-6 h-full">
+        <!-- Left Column: Forum Feed -->
+        <div class="col-span-2 bg-[#e0e1e2] rounded-2xl shadow-lg p-6 flex flex-col">
+          <div class="flex-shrink-0 bg-slate-700 text-white -m-6 mb-0 p-4 rounded-t-2xl">
+              <h2 class="text-2xl font-bold px-2">Forum</h2>
+          </div>
+          <div class="flex-shrink-0 py-6">
+            <button class="w-full max-w-sm mx-auto flex items-center justify-center bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-6 rounded-full shadow-md transition-colors">
+              Search
+            </button>
+          </div>
+          <div class="space-y-4 overflow-y-auto pr-2 -mr-2">
+            @for(post of posts(); track post.id) {
+              <div class="bg-slate-300/60 rounded-xl p-4 shadow">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-3">
+                    <img class="w-12 h-12 rounded-full object-cover" [src]="post.authorAvatar" alt="Author avatar">
+                    <div class="bg-slate-100 rounded-full py-2 px-4">
+                      <h3 class="font-bold text-lg text-slate-800">{{ post.title }}</h3>
+                    </div>
+                  </div>
+                  <span class="text-xs font-semibold text-white py-1 px-3 rounded-full" [class]="post.tag.color">{{ post.tag.text }}</span>
+                </div>
+                <p class="text-slate-700 my-4 pl-1">
+                  {{ post.content }}
+                </p>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-slate-500 font-medium">Time Posted: {{ post.timestamp }}</span>
+                  <div class="flex items-center space-x-2">
+                    <div class="flex items-center -space-x-2">
+                      @for(reactor of post.reactions; track $index) {
+                        <img class="w-6 h-6 rounded-full ring-2 ring-slate-300" [src]="reactor.avatar" [alt]="reactor.name">
+                      }
+                      @if(post.reactions.length > 3) {
+                         <span class="flex items-center justify-center w-6 h-6 rounded-full bg-slate-400 text-white text-xs font-semibold ring-2 ring-slate-300 z-10">+{{post.reactions.length - 3}}</span>
+                      }
+                    </div>
+                    <button class="w-9 h-9 flex items-center justify-center bg-slate-500 hover:bg-slate-600/80 rounded-full transition-colors">
+                      <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"></path></svg>
+                    </button>
+                    <button class="w-9 h-9 flex items-center justify-center bg-slate-500 hover:bg-slate-600/80 rounded-full transition-colors">
+                       <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path></svg>
+                    </button>
+                     <button class="w-9 h-9 flex items-center justify-center bg-slate-500 hover:bg-slate-600/80 rounded-full transition-colors">
+                      <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 017 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Right Column: Sidebar -->
+        <div class="col-span-1 flex flex-col space-y-6">
+          <button class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition-colors text-xl">
+            New Post
+          </button>
+          <div class="flex-grow bg-[#e0e1e2] rounded-2xl shadow-lg p-6 flex flex-col relative overflow-hidden">
+             <div class="absolute inset-0 bg-repeat bg-center opacity-5" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%239C92AC\' fill-opacity=\'0.12\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+             <div class="absolute -bottom-20 -right-20 w-60 h-60">
+                <div class="w-full h-full" style="background: radial-gradient(circle, rgba(125,125,125,0.1) 0%, rgba(224,225,226,0) 70%);"></div>
+            </div>
+
+            <div class="relative flex-shrink-0 mb-4">
+              <h2 class="text-2xl font-bold text-slate-800">Topics</h2>
+            </div>
+            <nav class="relative flex-grow">
+              <ul class="space-y-3 text-slate-700 font-medium">
+                @for(topic of topics(); track $index) {
+                  <li>
+                    <a href="#" class="block hover:text-cyan-600 transition-colors">{{ topic }}</a>
+                  </li>
+                }
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
