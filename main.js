@@ -5,6 +5,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const compression = require('compression');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,6 +27,15 @@ const connectToDatabase = async () => {
     }
 };
 
+// Create uploads directory if it doesn't exist
+const createUploadsDirectory = () => {
+    const uploadsDir = path.join(__dirname, 'uploads');
+    if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+        console.log('✅ Created uploads directory');
+    }
+};
+
 // Global Middleware Configuration
 app.use(helmet({
     contentSecurityPolicy: {
@@ -32,7 +43,9 @@ app.use(helmet({
             defaultSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'"],
             scriptSrc: ["'self'"],
-            imgSrc: ["'self'", "data:", "https:"],
+            imgSrc: ["'self'", "data:", "https:", "http:"],
+            mediaSrc: ["'self'", "data:", "https:", "http:"],
+            connectSrc: ["'self'", "https:", "http:"]
         },
     },
     crossOriginEmbedderPolicy: false
@@ -59,11 +72,25 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '50mb' })); // Increased for file uploads
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Compression middleware
 app.use(compression());
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+    setHeaders: (res, path) => {
+        // Set proper headers for different file types
+        if (path.endsWith('.pdf')) {
+            res.setHeader('Content-Type', 'application/pdf');
+        } else if (path.endsWith('.pptx')) {
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.presentationml.presentation');
+        } else if (path.endsWith('.md')) {
+            res.setHeader('Content-Type', 'text/markdown');
+        }
+    }
+}));
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -98,7 +125,10 @@ app.get('/api', (req, res) => {
             '/api/forum',
             '/api/messages',
             '/api/notifications',
-            '/api/admin'
+            '/api/admin',
+            '/api/courses',
+            '/api/modules',
+            '/api/content'
         ]
     });
 });
@@ -164,6 +194,31 @@ const loadRoutes = () => {
             console.error('✗ Failed to load admin routes:', error.message);
         }
 
+        // NEW COURSE MANAGEMENT ROUTES
+        try {
+            const courseRoutes = require('./backend/routes/courses');
+            app.use('/api/courses', courseRoutes);
+            console.log('✓ Course routes loaded');
+        } catch (error) {
+            console.error('✗ Failed to load course routes:', error.message);
+        }
+
+        try {
+            const moduleRoutes = require('./backend/routes/modules');
+            app.use('/api/modules', moduleRoutes);
+            console.log('✓ Module routes loaded');
+        } catch (error) {
+            console.error('✗ Failed to load module routes:', error.message);
+        }
+
+        try {
+            const contentRoutes = require('./backend/routes/content');
+            app.use('/api/content', contentRoutes);
+            console.log('✓ Content routes loaded');
+        } catch (error) {
+            console.error('✗ Failed to load content routes:', error.message);
+        }
+
     } catch (error) {
         console.error('Error in route loading:', error);
     }
@@ -177,13 +232,32 @@ app.use((req, res) => {
     res.status(404).json({
         error: 'Route not found',
         message: `The route ${req.originalUrl} does not exist.`,
-        availableRoutes: ['/api', '/api/auth', '/api/users', '/api/topics', '/api/forum', '/api/messages', '/api/notifications', '/api/admin']
+        availableRoutes: [
+            '/api', '/api/auth', '/api/users', '/api/topics', '/api/forum', 
+            '/api/messages', '/api/notifications', '/api/admin',
+            '/api/courses', '/api/modules', '/api/content'
+        ]
     });
 });
 
 // Global error handler
 app.use((error, req, res, next) => {
     console.error('Unhandled error:', error);
+    
+    // Handle multer file upload errors
+    if (error.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+            error: 'File too large',
+            message: 'File size exceeds the allowed limit of 50MB'
+        });
+    }
+    
+    if (error.message.includes('Invalid file type')) {
+        return res.status(400).json({
+            error: 'Invalid file type',
+            message: 'The uploaded file type is not supported'
+        });
+    }
     
     if (process.env.NODE_ENV === 'production') {
         return res.status(500).json({
@@ -204,12 +278,16 @@ const startServer = async () => {
         // Connect to database first
         await connectToDatabase();
         
+        // Create uploads directory
+        createUploadsDirectory();
+        
         // Then start the server
         app.listen(PORT, () => {
             console.log(`=== CampusLearn Backend Server ===`);
             console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode`);
             console.log(`Port: ${PORT}`);
             console.log(`Database: ${MONGODB_URI}`);
+            console.log(`Uploads directory: ${path.join(__dirname, 'uploads')}`);
             console.log(`Health check: http://localhost:${PORT}/health`);
             console.log(`API Base: http://localhost:${PORT}/api`);
             console.log(`=====================================`);
