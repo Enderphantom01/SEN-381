@@ -3,10 +3,10 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { authenticate, optionalAuth } = require('../middleware/auth');
 const ForumPost = require('../models/ForumPost');
-const ForumComment = require('../models/ForumComment');
+const ForumComment = require('../models/ForumComment.js');
 const User = require('../models/user');
 const Topic = require('../models/topic');
-const { sendNotification } = require('./notifications');
+const { sendNotification } = require('./notifications.js');
 
 const router = express.Router();
 

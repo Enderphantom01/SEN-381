@@ -109,7 +109,7 @@ const loadRoutes = () => {
         console.log('Loading routes...');
         
         try {
-            const authRoutes = require('./routes/auth');
+            const authRoutes = require('./backend/routes/auth');
             app.use('/api/auth', authRoutes);
             console.log('✓ Auth routes loaded');
         } catch (error) {
@@ -117,7 +117,7 @@ const loadRoutes = () => {
         }
 
         try {
-            const userRoutes = require('./routes/users');
+            const userRoutes = require('./backend/routes/users');
             app.use('/api/users', userRoutes);
             console.log('✓ User routes loaded');
         } catch (error) {
@@ -125,7 +125,7 @@ const loadRoutes = () => {
         }
 
         try {
-            const topicRoutes = require('./routes/topics');
+            const topicRoutes = require('./backend/routes/topics');
             app.use('/api/topics', topicRoutes);
             console.log('✓ Topic routes loaded');
         } catch (error) {
@@ -133,7 +133,7 @@ const loadRoutes = () => {
         }
 
         try {
-            const forumRoutes = require('./routes/forum');
+            const forumRoutes = require('./backend/routes/forum');
             app.use('/api/forum', forumRoutes);
             console.log('✓ Forum routes loaded');
         } catch (error) {
@@ -141,7 +141,7 @@ const loadRoutes = () => {
         }
 
         try {
-            const messageRoutes = require('./routes/messages');
+            const messageRoutes = require('./backend/routes/messages');
             app.use('/api/messages', messageRoutes);
             console.log('✓ Message routes loaded');
         } catch (error) {
@@ -149,7 +149,7 @@ const loadRoutes = () => {
         }
 
         try {
-            const notificationModule = require('./routes/notifications');
+            const notificationModule = require('./backend/routes/notifications');
             app.use('/api/notifications', notificationModule.router);
             console.log('✓ Notification routes loaded');
         } catch (error) {
@@ -157,7 +157,7 @@ const loadRoutes = () => {
         }
 
         try {
-            const adminRoutes = require('./routes/admin');
+            const adminRoutes = require('./backend/routes/admin');
             app.use('/api/admin', adminRoutes);
             console.log('✓ Admin routes loaded');
         } catch (error) {

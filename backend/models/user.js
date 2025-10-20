@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        match: [/^[A-Z][1,3]\d{3,}$/, 'Invalid user ID format']
+        match: [/^[A-Z]\d{3,}$/, 'Invalid user ID format'] // Fixed regex
     },
     name: {
         type: String,
