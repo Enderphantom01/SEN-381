@@ -1,5 +1,8 @@
-import { ChangeDetectionStrategy, Component, signal, computed } from '@angular/core';
+// src/app/pages/chat/chat.component.ts
+import { ChangeDetectionStrategy, Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { ApiService } from '../../services/api.service';
 
 // Interfaces
 export type ContactStatus = 'online' | 'away' | 'unavailable' | 'offline';
@@ -26,16 +29,22 @@ export interface Message {
   };
 }
 
-
 @Component({
   selector: 'app-chat',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './chat.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ChatComponent {
+export class ChatComponent implements OnInit {
+  private apiService = inject(ApiService);
+  private router = inject(Router);
+
   myId = 0;
   newMessage = signal('');
+
+  // User info
+  currentUser = signal<any>(null);
 
   // Mock data for contacts based on image
   contacts = signal<Contact[]>([
@@ -78,6 +87,61 @@ export class ChatComponent {
   messages = computed(() => {
     return this.allMessages()[this.selectedContactId()] ?? [];
   });
+
+  ngOnInit() {
+    // Get current user info from API service
+    const user = this.apiService.getCurrentUserValue();
+    this.currentUser.set(user);
+  }
+
+  /**
+   * Get user display name for the header
+   */
+  getUserDisplayName(): string {
+    const user = this.currentUser();
+    return user?.name || 'Student';
+  }
+
+  /**
+   * Handle logout
+   */
+  logout(): void {
+    this.apiService.logout().subscribe({
+      next: () => {
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Logout failed:', error);
+        this.router.navigate(['/login']);
+      }
+    });
+  }
+
+  /**
+   * Navigate to different sections
+   */
+  navigateToHome(): void {
+    this.router.navigate(['/home']);
+  }
+
+  navigateToCourses(): void {
+    // TODO: Implement courses navigation
+    console.log('Navigate to courses');
+  }
+
+  navigateToTopics(): void {
+    // TODO: Implement topics navigation
+    console.log('Navigate to topics');
+  }
+
+  navigateToChats(): void {
+    // Already on chats page
+  }
+
+  navigateToForum(): void {
+    // TODO: Implement forum navigation
+    console.log('Navigate to forum');
+  }
 
   selectContact(id: number): void {
     this.selectedContactId.set(id);

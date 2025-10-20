@@ -1,5 +1,6 @@
 // src/app/app.routes.ts
 import { Routes } from '@angular/router';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -13,11 +14,17 @@ export const routes: Routes = [
   },
   { 
     path: 'home', 
-    loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent)
+    loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent),
+    canActivate: [authGuard] // Add auth guard here
   },
   { 
     path: 'chats', 
-    loadComponent: () => import('./pages/chat/chat.component').then(m => m.ChatComponent)
+    loadComponent: () => import('./pages/chat/chat.component').then(m => m.ChatComponent),
+    canActivate: [authGuard] // Add auth guard here
+  },
+  { 
+    path: 'api-test', 
+    loadComponent: () => import('./pages/api-test/api-test.component').then(m => m.ApiTestComponent)
   },/*
   { 
     path: 'courses', 

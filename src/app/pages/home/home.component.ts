@@ -1,5 +1,8 @@
-import { ChangeDetectionStrategy, Component, signal, computed } from '@angular/core';
+// src/app/pages/home/home.component.ts
+import { ChangeDetectionStrategy, Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { ApiService } from '../../services/api.service';
 
 // Interfaces for data structures
 interface Course {
@@ -43,11 +46,14 @@ interface CalendarDay {
 
 @Component({
   selector: 'app-home',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './home.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
+  private apiService = inject(ApiService);
+  private router = inject(Router);
 
   // API call to get user's current course
   course = signal<Course>({
@@ -125,4 +131,128 @@ export class HomeComponent {
 
     return days;
   });
+
+  // User info signal
+  currentUser = signal<any>(null);
+
+  ngOnInit() {
+    // Get current user info from API service
+    const user = this.apiService.getCurrentUserValue();
+    this.currentUser.set(user);
+    
+    console.log('Home component initialized with user:', user);
+    
+    // Fetch user profile data from API
+    this.fetchUserData();
+  }
+
+  /**
+   * Fetch user-specific data from the API
+   */
+  private fetchUserData(): void {
+    // Get user profile
+    this.apiService.getUserProfile().subscribe({
+      next: (profileResponse) => {
+        console.log('User profile loaded:', profileResponse);
+        // You can update course, assignment, etc. with user-specific data here
+        // For example:
+        // if (profileResponse.user?.academicDetails) {
+        //   this.course.set({
+        //     name: profileResponse.user.academicDetails.degree || 'Software Engineering',
+        //     code: profileResponse.user.academicDetails.yearOfStudy?.toString() || '381'
+        //   });
+        // }
+      },
+      error: (error) => {
+        console.error('Failed to load user profile:', error);
+      }
+    });
+
+    // Get user's topics
+    this.apiService.getTopics().subscribe({
+      next: (topicsResponse) => {
+        console.log('User topics loaded:', topicsResponse);
+        // You can use this data to populate relevant sections
+      },
+      error: (error) => {
+        console.error('Failed to load topics:', error);
+      }
+    });
+  }
+
+  /**
+   * Get user display name for the header
+   */
+  getUserDisplayName(): string {
+    const user = this.currentUser();
+    return user?.name || 'Student';
+  }
+
+  /**
+   * Get user email for display
+   */
+  getUserEmail(): string {
+    const user = this.currentUser();
+    return user?.email || '';
+  }
+
+  /**
+   * Get user role for display
+   */
+  getUserRole(): string {
+    const user = this.currentUser();
+    return user?.role || 'Student';
+  }
+
+  /**
+   * Handle logout
+   */
+  logout(): void {
+    this.apiService.logout().subscribe({
+      next: () => {
+        console.log('Logout successful');
+        // Navigate to login page
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Logout failed:', error);
+        // Even if API call fails, clear local session and redirect
+        this.router.navigate(['/login']);
+      }
+    });
+  }
+
+  /**
+   * Navigate to different sections
+   */
+  navigateToCourses(): void {
+    // TODO: Implement courses navigation
+    console.log('Navigate to courses');
+  }
+
+  navigateToTopics(): void {
+    // TODO: Implement topics navigation
+    console.log('Navigate to topics');
+  }
+
+  navigateToChats(): void {
+    this.router.navigate(['/chats']);
+  }
+
+  navigateToForum(): void {
+    // TODO: Implement forum navigation
+    console.log('Navigate to forum');
+  }
+
+  /**
+   * Get current date for display
+   */
+  getCurrentDate(): string {
+    return new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
 }
