@@ -614,6 +614,58 @@ router.post('/tutors/apply', [
             message: 'Unable to submit tutor application'
         });
     }
+    /**
+ * GET /api/users
+ * Get all users (with optional search)
+ */
+router.get('/', authenticate(), async (req, res) => {
+    try {
+        const { search } = req.query;
+        let query = {};
+
+        // If search query is provided, search in name and email
+        if (search) {
+            query = {
+                $or: [
+                    { name: { $regex: search, $options: 'i' } },
+                    { email: { $regex: search, $options: 'i' } }
+                ]
+            };
+        }
+
+        // Exclude passwords and other sensitive fields
+        const users = await User.find(query)
+            .select('-password -__v')
+            .lean();
+
+        // Map the users to a safe format
+        const safeUsers = users.map(user => ({
+            userId: user.userId,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            status: user.status,
+            ...(user.role === 'Student' && { studentNumber: user.studentNumber }),
+            ...(user.role === 'Tutor' && { 
+                tutorId: user.tutorId,
+                subjects: user.subjects,
+                isApproved: user.isApproved
+            }),
+            ...(user.role === 'Admin' && { adminId: user.adminId })
+        }));
+
+        res.status(200).json({
+            users: safeUsers
+        });
+
+    } catch (error) {
+        console.error('Get users error:', error);
+        res.status(500).json({
+            error: 'Internal server error',
+            message: 'Unable to fetch users'
+        });
+    }
+});
 });
 
 module.exports = router;

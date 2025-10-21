@@ -1,4 +1,4 @@
-// main.js - CampusLearn Backend Server with MongoDB Connection
+// main.js - CampusLearn Backend Server with MongoDB Connection and Socket.IO
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -7,9 +7,21 @@ const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const path = require('path');
 const fs = require('fs');
+const { createServer } = require('http');
+const { Server } = require('socket.io');
 
 const app = express();
+const server = createServer(app);
 const PORT = process.env.PORT || 3000;
+
+// Socket.IO Configuration
+const io = new Server(server, {
+  cors: {
+    origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:4200'],
+    methods: ['GET', 'POST'],
+    credentials: false
+  }
+});
 
 // MongoDB Connection
 const MONGODB_URI = 'mongodb://localhost:27017/campuslearnofficial';
@@ -26,6 +38,151 @@ const connectToDatabase = async () => {
         process.exit(1);
     }
 };
+
+// Socket.IO Connection Handling
+
+const connectedUsers = new Map();
+
+io.on('connection', (socket) => {
+    console.log(`🔌 User connected: ${socket.id}`);
+
+    // User joins with their user ID
+    socket.on('user_connected', (userId) => {
+        connectedUsers.set(userId, socket.id);
+        console.log(`👤 User ${userId} connected with socket ${socket.id}`);
+        
+        // Broadcast online status to all connected clients
+        socket.broadcast.emit('user_status_changed', {
+            userId: userId,
+            status: 'online'
+        });
+    });
+
+    // Handle sending messages
+    socket.on('send_message', async (messageData) => {
+        try {
+            const { senderId, receiverId, text, conversationId } = messageData;
+            
+            console.log(`💬 Message from ${senderId} to ${receiverId}: ${text}`);
+            
+            // Save message to database with correct field names
+            const Message = require('./backend/models/Message');
+            const newMessage = new Message({
+                conversationId: conversationId,
+                senderId: senderId,
+                receiverId: receiverId,
+                text: text, // Using 'text' instead of 'content'
+                status: 'sent',
+                timestamp: new Date()
+            });
+
+            const savedMessage = await newMessage.save();
+            
+            // Emit to sender (confirmation)
+            socket.emit('message_sent', {
+                _id: savedMessage._id,
+                conversationId: savedMessage.conversationId,
+                senderId: savedMessage.senderId,
+                receiverId: savedMessage.receiverId,
+                text: savedMessage.text,
+                timestamp: savedMessage.createdAt,
+                status: 'sent'
+            });
+
+            // Emit to receiver if online
+            const receiverSocketId = connectedUsers.get(receiverId);
+            if (receiverSocketId) {
+                io.to(receiverSocketId).emit('new_message', {
+                    _id: savedMessage._id,
+                    conversationId: savedMessage.conversationId,
+                    senderId: savedMessage.senderId,
+                    receiverId: savedMessage.receiverId,
+                    text: savedMessage.text,
+                    timestamp: savedMessage.createdAt,
+                    status: 'received'
+                });
+                console.log(`📤 Message delivered to online user ${receiverId}`);
+            } else {
+                console.log(`📭 User ${receiverId} is offline, message stored`);
+            }
+
+        } catch (error) {
+            console.error('❌ Error sending message:', error);
+            socket.emit('message_error', {
+                error: 'Failed to send message',
+                details: error.message
+            });
+        }
+    });
+
+    // Handle typing indicators
+    socket.on('typing_start', (data) => {
+        const receiverSocketId = connectedUsers.get(data.receiverId);
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit('user_typing', {
+                senderId: data.senderId,
+                isTyping: true
+            });
+        }
+    });
+
+    socket.on('typing_stop', (data) => {
+        const receiverSocketId = connectedUsers.get(data.receiverId);
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit('user_typing', {
+                senderId: data.senderId,
+                isTyping: false
+            });
+        }
+    });
+
+    // Handle message read receipts
+    socket.on('mark_as_read', async (data) => {
+        try {
+            const Message = require('./backend/models/Message');
+            await Message.updateMany(
+                {
+                    conversationId: data.conversationId,
+                    receiverId: data.userId,
+                    status: 'received'
+                },
+                {
+                    $set: { status: 'read' }
+                }
+            );
+            
+            // Notify sender that messages were read
+            const senderSocketId = connectedUsers.get(data.senderId);
+            if (senderSocketId) {
+                io.to(senderSocketId).emit('messages_read', {
+                    conversationId: data.conversationId,
+                    readerId: data.userId
+                });
+            }
+        } catch (error) {
+            console.error('❌ Error marking messages as read:', error);
+        }
+    });
+
+    // Handle user disconnect
+    socket.on('disconnect', () => {
+        // Find and remove disconnected user
+        for (let [userId, socketId] of connectedUsers.entries()) {
+            if (socketId === socket.id) {
+                connectedUsers.delete(userId);
+                console.log(`👤 User ${userId} disconnected`);
+                
+                // Broadcast offline status
+                socket.broadcast.emit('user_status_changed', {
+                    userId: userId,
+                    status: 'offline'
+                });
+                break;
+            }
+        }
+        console.log(`🔌 User disconnected: ${socket.id}`);
+    });
+});
 
 // Create uploads directory if it doesn't exist
 const createUploadsDirectory = () => {
@@ -45,7 +202,7 @@ app.use(helmet({
             scriptSrc: ["'self'"],
             imgSrc: ["'self'", "data:", "https:", "http:"],
             mediaSrc: ["'self'", "data:", "https:", "http:"],
-            connectSrc: ["'self'", "https:", "http:"]
+            connectSrc: ["'self'", "https:", "http:", "ws:", "wss:"]
         },
     },
     crossOriginEmbedderPolicy: false
@@ -72,7 +229,7 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Body parsing middleware
-app.use(express.json({ limit: '50mb' })); // Increased for file uploads
+app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Compression middleware
@@ -81,7 +238,6 @@ app.use(compression());
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
     setHeaders: (res, path) => {
-        // Set proper headers for different file types
         if (path.endsWith('.pdf')) {
             res.setHeader('Content-Type', 'application/pdf');
         } else if (path.endsWith('.pptx')) {
@@ -107,7 +263,8 @@ app.get('/health', (req, res) => {
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
         environment: process.env.NODE_ENV || 'development',
-        database: dbStatus
+        database: dbStatus,
+        connectedUsers: connectedUsers.size
     });
 });
 
@@ -118,6 +275,7 @@ app.get('/api', (req, res) => {
         status: 'Running',
         version: '1.0.0',
         database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        connectedUsers: connectedUsers.size,
         endpoints: [
             '/api/auth',
             '/api/users', 
@@ -194,7 +352,6 @@ const loadRoutes = () => {
             console.error('✗ Failed to load admin routes:', error.message);
         }
 
-        // NEW COURSE MANAGEMENT ROUTES
         try {
             const courseRoutes = require('./backend/routes/courses');
             app.use('/api/courses', courseRoutes);
@@ -244,7 +401,6 @@ app.use((req, res) => {
 app.use((error, req, res, next) => {
     console.error('Unhandled error:', error);
     
-    // Handle multer file upload errors
     if (error.code === 'LIMIT_FILE_SIZE') {
         return res.status(400).json({
             error: 'File too large',
@@ -282,10 +438,11 @@ const startServer = async () => {
         createUploadsDirectory();
         
         // Then start the server
-        app.listen(PORT, () => {
+        server.listen(PORT, () => {
             console.log(`=== CampusLearn Backend Server ===`);
             console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode`);
             console.log(`Port: ${PORT}`);
+            console.log(`WebSocket: ws://localhost:${PORT}`);
             console.log(`Database: ${MONGODB_URI}`);
             console.log(`Uploads directory: ${path.join(__dirname, 'uploads')}`);
             console.log(`Health check: http://localhost:${PORT}/health`);

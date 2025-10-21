@@ -1,48 +1,39 @@
-// models/Message.js - Private Message Model
+// models/Message.js - Updated Private Message Model
 const mongoose = require('mongoose');
 
 const MessageSchema = new mongoose.Schema({
-    messageId: {
-        type: String,
-        required: true,
-        unique: true,
-        match: [/^MSG\d{3,}$/, 'Invalid message ID format']
-    },
     conversationId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Conversation',
+        type: String,
         required: true
     },
     senderId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        type: String,
         required: true
     },
     receiverId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        type: String,
         required: true
     },
-    content: {
+    text: {
         type: String,
         required: true,
         maxlength: 5000
     },
-    isRead: {
-        type: Boolean,
-        default: false
+    status: {
+        type: String,
+        enum: ['sent', 'received', 'read'],
+        default: 'sent'
     },
-    attachments: [{
-        filename: String,
-        originalName: String,
-        mimetype: String,
-        size: Number,
-        url: String
-    }],
     messageType: {
         type: String,
         enum: ['text', 'file', 'system'],
         default: 'text'
+    },
+    file: {
+        name: String,
+        type: String,
+        url: String,
+        size: Number
     }
 }, {
     timestamps: true
@@ -52,6 +43,14 @@ const MessageSchema = new mongoose.Schema({
 MessageSchema.index({ conversationId: 1, createdAt: 1 });
 MessageSchema.index({ senderId: 1 });
 MessageSchema.index({ receiverId: 1 });
-MessageSchema.index({ isRead: 1 });
+MessageSchema.index({ status: 1 });
+
+// Auto-generate messageId before saving
+MessageSchema.pre('save', function(next) {
+    if (!this.messageId) {
+        this.messageId = `MSG${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
+    }
+    next();
+});
 
 module.exports = mongoose.model('Message', MessageSchema);
