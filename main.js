@@ -1,4 +1,13 @@
 // main.js - CampusLearn Backend Server with MongoDB Connection and Socket.IO
+
+require('dotenv').config();
+
+console.log('🔧 Environment Variables Check:');
+console.log('🔧 NODE_ENV:', process.env.NODE_ENV);
+console.log('🔧 GEMINI_API_KEY available:', !!process.env.GEMINI_API_KEY);
+console.log('🔧 GEMINI_API_KEY (first 10 chars):', process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.substring(0, 10) + '...' : 'NOT FOUND');
+console.log('🔧 ALLOWED_ORIGINS:', process.env.ALLOWED_ORIGINS);
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -59,61 +68,109 @@ io.on('connection', (socket) => {
     });
 
     // Handle sending messages
-    socket.on('send_message', async (messageData) => {
-        try {
-            const { senderId, receiverId, text, conversationId } = messageData;
+   // Handle sending messages
+socket.on('send_message', async (messageData) => {
+    try {
+        const { senderId, receiverId, text, conversationId } = messageData;
+        
+        console.log(`💬 Message from ${senderId} to ${receiverId}: ${text}`);
+        
+        // Check if this is a message to the AI assistant
+        if (receiverId === 'ai-assistant') {
+            console.log(`🤖 AI Assistant message received: ${text}`);
             
-            console.log(`💬 Message from ${senderId} to ${receiverId}: ${text}`);
-            
-            // Save message to database with correct field names
-            const Message = require('./backend/models/Message');
-            const newMessage = new Message({
+            // Don't save AI messages to database, just acknowledge receipt
+            socket.emit('message_sent', {
+                _id: `ai-${Date.now()}`,
                 conversationId: conversationId,
                 senderId: senderId,
                 receiverId: receiverId,
-                text: text, // Using 'text' instead of 'content'
-                status: 'sent',
-                timestamp: new Date()
+                text: text,
+                timestamp: new Date(),
+                status: 'sent'
             });
-
-            const savedMessage = await newMessage.save();
             
-            // Emit to sender (confirmation)
-            socket.emit('message_sent', {
+            console.log(`✅ AI message acknowledged (not stored in DB)`);
+            return; // Stop further processing for AI messages
+        }
+        
+        // Save message to database with correct field names (only for real users)
+        const Message = require('./backend/models/Message');
+        const newMessage = new Message({
+            conversationId: conversationId,
+            senderId: senderId,
+            receiverId: receiverId,
+            text: text, // Using 'text' instead of 'content'
+            status: 'sent',
+            timestamp: new Date()
+        });
+
+        const savedMessage = await newMessage.save();
+        
+        // Emit to sender (confirmation)
+        socket.emit('message_sent', {
+            _id: savedMessage._id,
+            conversationId: savedMessage.conversationId,
+            senderId: savedMessage.senderId,
+            receiverId: savedMessage.receiverId,
+            text: savedMessage.text,
+            timestamp: savedMessage.createdAt,
+            status: 'sent'
+        });
+
+        // Emit to receiver if online
+        const receiverSocketId = connectedUsers.get(receiverId);
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit('new_message', {
                 _id: savedMessage._id,
                 conversationId: savedMessage.conversationId,
                 senderId: savedMessage.senderId,
                 receiverId: savedMessage.receiverId,
                 text: savedMessage.text,
                 timestamp: savedMessage.createdAt,
-                status: 'sent'
+                status: 'received'
             });
-
-            // Emit to receiver if online
-            const receiverSocketId = connectedUsers.get(receiverId);
-            if (receiverSocketId) {
-                io.to(receiverSocketId).emit('new_message', {
-                    _id: savedMessage._id,
-                    conversationId: savedMessage.conversationId,
-                    senderId: savedMessage.senderId,
-                    receiverId: savedMessage.receiverId,
-                    text: savedMessage.text,
-                    timestamp: savedMessage.createdAt,
-                    status: 'received'
-                });
-                console.log(`📤 Message delivered to online user ${receiverId}`);
-            } else {
-                console.log(`📭 User ${receiverId} is offline, message stored`);
-            }
-
-        } catch (error) {
-            console.error('❌ Error sending message:', error);
-            socket.emit('message_error', {
-                error: 'Failed to send message',
-                details: error.message
-            });
+            console.log(`📤 Message delivered to online user ${receiverId}`);
+        } else {
+            console.log(`📭 User ${receiverId} is offline, message stored`);
         }
-    });
+
+    } catch (error) {
+        console.error('❌ Error sending message:', error);
+        socket.emit('message_error', {
+            error: 'Failed to send message',
+            details: error.message
+        });
+    }
+});
+// Handle AI-specific messages
+socket.on('send_ai_message', async (messageData) => {
+    try {
+        const { senderId, text, conversationId } = messageData;
+        
+        console.log(`🤖 AI Message from ${senderId}: ${text}`);
+        
+        // Acknowledge AI message receipt
+        socket.emit('ai_message_received', {
+            _id: `ai-${Date.now()}`,
+            conversationId: conversationId,
+            senderId: senderId,
+            receiverId: 'ai-assistant',
+            text: text,
+            timestamp: new Date(),
+            status: 'received'
+        });
+        
+        console.log(`✅ AI message processed`);
+        
+    } catch (error) {
+        console.error('❌ Error processing AI message:', error);
+        socket.emit('message_error', {
+            error: 'Failed to process AI message',
+            details: error.message
+        });
+    }
+});
 
     // Handle typing indicators
     socket.on('typing_start', (data) => {
@@ -277,17 +334,19 @@ app.get('/api', (req, res) => {
         database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
         connectedUsers: connectedUsers.size,
         endpoints: [
-            '/api/auth',
-            '/api/users', 
-            '/api/topics',
-            '/api/forum',
-            '/api/messages',
-            '/api/notifications',
-            '/api/admin',
-            '/api/courses',
-            '/api/modules',
-            '/api/content'
-        ]
+    '/api',
+    '/api/auth', 
+    '/api/users',
+    '/api/topics',
+    '/api/forum',
+    '/api/messages', 
+    '/api/notifications',
+    '/api/admin',
+    '/api/courses',
+    '/api/modules',
+    '/api/content',
+    '/api/ai'  // Add this line
+]
     });
 });
 
@@ -374,6 +433,13 @@ const loadRoutes = () => {
             console.log('✓ Content routes loaded');
         } catch (error) {
             console.error('✗ Failed to load content routes:', error.message);
+        }
+        try {
+            const aiRoutes = require('./backend/routes/ai');
+             app.use('/api/ai', aiRoutes);
+             console.log('✓ AI routes loaded');
+        } catch (error) {
+             console.error('✗ Failed to load AI routes:', error.message);
         }
 
     } catch (error) {

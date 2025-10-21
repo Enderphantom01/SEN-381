@@ -1,4 +1,3 @@
-// models/Message.js - Updated Private Message Model
 const mongoose = require('mongoose');
 
 const MessageSchema = new mongoose.Schema({
@@ -39,18 +38,19 @@ const MessageSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Indexes
+// Indexes - removed messageId index
 MessageSchema.index({ conversationId: 1, createdAt: 1 });
 MessageSchema.index({ senderId: 1 });
 MessageSchema.index({ receiverId: 1 });
 MessageSchema.index({ status: 1 });
 
-// Auto-generate messageId before saving
-MessageSchema.pre('save', function(next) {
-    if (!this.messageId) {
-        this.messageId = `MSG${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
+// Remove the old messageId index when the model is initialized
+MessageSchema.on('index', function(error) {
+    if (error) {
+        console.log('Message index error:', error);
+    } else {
+        console.log('Message indexes created successfully');
     }
-    next();
 });
 
 module.exports = mongoose.model('Message', MessageSchema);
