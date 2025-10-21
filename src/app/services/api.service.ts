@@ -547,6 +547,39 @@ export class ApiService {
   isLoggedIn(): boolean {
     return !!this.sessionId;
   }
+  // AI Methods
+  getGeminiApiKey(): Observable<{ apiKey: string; status: string }> {
+    return this.http.get<{ apiKey: string; status: string }>(
+        `${this.baseUrl}/ai/gemini-key`, 
+        { headers: this.getHeaders() }
+    );
+  }
+  // AI-specific message method
+sendAIMessage(messageData: {
+  senderId: string;
+  text: string;
+  conversationId: string;
+}): void {
+  if (this.socket && this.socket.connected) {
+    this.socket.emit('send_ai_message', messageData);
+  } else {
+    console.error('❌ Socket not connected for AI message');
+    // Fallback: just log the AI message locally
+    console.log('🤖 AI Message (offline):', messageData.text);
+  }
+}
+
+sendAIMessageViaAPI(messageData: {
+  text: string;
+  attachment?: { base64: string; type: string };
+  conversationId?: string;
+}): Observable<any> {
+  return this.http.post(
+    `${this.baseUrl}/ai/chat`,
+    messageData,
+    { headers: this.getHeaders() }
+  );
+}
 
   // Test connection method
   testConnection(): Observable<any> {
@@ -576,5 +609,7 @@ export class ApiService {
     headers: this.getHeaders(), 
     params 
   });
+  
+  
 }
 }
