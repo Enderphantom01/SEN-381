@@ -54,7 +54,7 @@ interface Notification {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule], 
   templateUrl: './home.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -97,12 +97,11 @@ export class HomeComponent implements OnInit {
 
   // API call to get user's recent contacts
   chats = signal<ChatContact[]>([
-    { name: 'AI assistant', role: '', avatar: 'ai', borderColor: 'border-green-400' },
-    { name: 'James Anderson', role: 'Lecturer', avatar: 'user', borderColor: 'border-red-500' },
-    { name: 'Daniel Thomas', role: 'Student', avatar: 'user', borderColor: 'border-red-500' },
-    { name: 'Karen Clark', role: 'Lecturer', avatar: 'user', borderColor: 'border-yellow-400' },
-    { name: 'Joshua King', role: 'Lecturer', avatar: 'user', borderColor: 'border-gray-500' },
-  ]);
+  { name: 'AI Assistant', role: 'AI Tutor', avatar: 'ai', borderColor: 'border-green-400' },
+  { name: 'James Anderson', role: 'Lecturer', avatar: 'user', borderColor: 'border-green-400' },
+  { name: 'Caren Clark', role: 'Student', avatar: 'user', borderColor: 'border-yellow-400' },
+  { name: 'Joshua King', role: 'Student', avatar: 'user', borderColor: 'border-gray-500' },
+]);
 
   // API call to get most recent upcoming activity
   upcomingEvent = signal<UpcomingEvent>({
@@ -261,7 +260,7 @@ export class HomeComponent implements OnInit {
   navigateToForum(): void {
     this.router.navigate(['/forum']);
   }
-  
+
   navigateToSettings(): void {
     this.router.navigate(['/settings']);
   }
