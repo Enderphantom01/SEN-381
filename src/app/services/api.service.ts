@@ -208,7 +208,9 @@ export class ApiService {
     });
 
     if (this.sessionId) {
-      headers = headers.set('Authorization', `Bearer ${this.sessionId}`);
+      headers = headers
+        .set('Authorization', `Bearer ${this.sessionId}`)
+        .set('X-Session-Id', this.sessionId);
     }
 
     return headers;
@@ -218,7 +220,9 @@ export class ApiService {
     let headers = new HttpHeaders();
 
     if (this.sessionId) {
-      headers = headers.set('Authorization', `Bearer ${this.sessionId}`);
+      headers = headers
+        .set('Authorization', `Bearer ${this.sessionId}`)
+        .set('X-Session-Id', this.sessionId);
     }
 
     return headers;
@@ -473,6 +477,10 @@ export class ApiService {
 
   likePost(postId: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/forum/posts/${postId}/like`, {}, { headers: this.getHeaders() });
+  }
+
+  dislikePost(postId: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/forum/posts/${postId}/dislike`, {}, { headers: this.getHeaders() });
   }
 
   createComment(postId: string, commentData: any): Observable<any> {

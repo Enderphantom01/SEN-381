@@ -54,113 +54,239 @@
 
   <!-- Main Content -->
   <div class="flex-grow flex flex-col overflow-hidden">
-    <!-- Header Banner -->
+    <!-- Header -->
     <header class="flex-shrink-0 flex justify-between items-center px-6 py-3 border-b border-slate-700/50">
-      <!-- Welcome message -->
       <div class="text-white">
         <h1 class="text-xl font-bold">Forum - {{ getUserDisplayName() }}</h1>
         <p class="text-sm text-gray-400">Connect and discuss with the community</p>
       </div>
 
-      <!-- Right side buttons -->
       <div class="flex items-center space-x-2 sm:space-x-4">
-        <button class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-slate-700/80 backdrop-blur-sm rounded-full hover:bg-slate-600 transition-colors">
-          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        <button class="hidden sm:flex items-center gap-2 bg-slate-700/80 backdrop-blur-sm rounded-full px-4 py-2 hover:bg-slate-600 transition" (click)="logout()">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H5a3 3 0 01-3-3V7a3 3 0 013-3h5a3 3 0 013 3v1"></path>
+          </svg>
+          Logout
         </button>
-        <button class="relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-slate-700/80 backdrop-blur-sm rounded-full hover:bg-slate-600 transition-colors">
-          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-          <span class="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 block h-3 w-3 rounded-full bg-teal-400 ring-2 ring-slate-700"></span>
+        <button class="flex items-center gap-2 bg-cyan-600 rounded-full px-4 py-2 font-semibold hover:bg-cyan-500 transition" (click)="openCreatePost()">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          New Post
         </button>
-        <div class="flex items-center space-x-3 px-4 py-2 bg-slate-700/80 backdrop-blur-sm rounded-full cursor-pointer hover:bg-slate-600 transition-colors" (click)="logout()">
-          <div class="w-8 h-8 flex items-center justify-center bg-slate-500 rounded-full">
-            <svg class="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
-          </div>
-          <span class="font-semibold hidden sm:inline">Logout</span>
-        </div>
       </div>
     </header>
-    
-    <!-- Page Content -->
-    <main class="flex-grow p-6 overflow-y-auto text-slate-800">
-      <div class="grid grid-cols-3 gap-6 h-full">
-        <!-- Left Column: Forum Feed -->
-        <div class="col-span-2 bg-[#e0e1e2] rounded-2xl shadow-lg p-6 flex flex-col">
-          <div class="flex-shrink-0 bg-slate-700 text-white -m-6 mb-0 p-4 rounded-t-2xl">
-              <h2 class="text-2xl font-bold px-2">Forum</h2>
-          </div>
-          <div class="flex-shrink-0 py-6">
-            <button class="w-full max-w-sm mx-auto flex items-center justify-center bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-6 rounded-full shadow-md transition-colors">
-              Search
-            </button>
-          </div>
-          <div class="space-y-4 overflow-y-auto pr-2 -mr-2">
-            @for(post of posts(); track post.id) {
-              <div class="bg-slate-300/60 rounded-xl p-4 shadow">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center space-x-3">
-                    <img class="w-12 h-12 rounded-full object-cover" [src]="post.authorAvatar" alt="Author avatar">
-                    <div class="bg-slate-100 rounded-full py-2 px-4">
-                      <h3 class="font-bold text-lg text-slate-800">{{ post.title }}</h3>
-                    </div>
-                  </div>
-                  <span class="text-xs font-semibold text-white py-1 px-3 rounded-full" [class]="post.tag.color">{{ post.tag.text }}</span>
-                </div>
-                <p class="text-slate-700 my-4 pl-1">
-                  {{ post.content }}
-                </p>
-                <div class="flex items-center justify-between text-sm">
-                  <span class="text-slate-500 font-medium">Time Posted: {{ post.timestamp }}</span>
-                  <div class="flex items-center space-x-2">
-                    <div class="flex items-center -space-x-2">
-                      @for(reactor of post.reactions; track $index) {
-                        <img class="w-6 h-6 rounded-full ring-2 ring-slate-300" [src]="reactor.avatar" [alt]="reactor.name">
-                      }
-                      @if(post.reactions.length > 3) {
-                         <span class="flex items-center justify-center w-6 h-6 rounded-full bg-slate-400 text-white text-xs font-semibold ring-2 ring-slate-300 z-10">+{{post.reactions.length - 3}}</span>
-                      }
-                    </div>
-                    <button class="w-9 h-9 flex items-center justify-center bg-slate-500 hover:bg-slate-600/80 rounded-full transition-colors">
-                      <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"></path></svg>
-                    </button>
-                    <button class="w-9 h-9 flex items-center justify-center bg-slate-500 hover:bg-slate-600/80 rounded-full transition-colors">
-                       <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path></svg>
-                    </button>
-                     <button class="w-9 h-9 flex items-center justify-center bg-slate-500 hover:bg-slate-600/80 rounded-full transition-colors">
-                      <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 017 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
+
+    <main class="flex-grow overflow-y-auto px-6 py-6">
+      <!-- Search -->
+      <section class="mb-6">
+        <form class="flex flex-col gap-3 md:flex-row md:items-center" (submit)="applySearch(); $event.preventDefault()">
+          <div class="relative flex-1">
+            <svg class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input
+              type="text"
+              class="w-full bg-slate-900/70 border border-slate-700 rounded-full py-3 pl-12 pr-12 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/60 transition"
+              placeholder="Search by keywords, topics, or author..."
+              [value]="searchTerm()"
+              (input)="onSearchInput($any($event.target).value)"
+            />
+            @if(searchTerm()) {
+              <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-300 hover:text-white transition" (click)="clearSearch()">
+                Clear
+              </button>
             }
           </div>
-        </div>
+          <div class="flex gap-3">
+            <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 transition rounded-full px-6 py-2 font-semibold">
+              Search
+            </button>
+            <button type="button" class="bg-slate-700 hover:bg-slate-600 transition rounded-full px-6 py-2 font-semibold" (click)="loadPosts()">
+              Refresh
+            </button>
+          </div>
+        </form>
+        @if(searchTouched() && !postsLoading() && !posts().length) {
+          <p class="mt-2 text-sm text-slate-300">No discussions found for "{{ searchTerm() }}". Try different keywords.</p>
+        }
+      </section>
 
-        <!-- Right Column: Sidebar -->
-        <div class="col-span-1 flex flex-col space-y-6">
-          <button class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition-colors text-xl">
-            New Post
-          </button>
-          <div class="flex-grow bg-[#e0e1e2] rounded-2xl shadow-lg p-6 flex flex-col relative overflow-hidden">
-             <div class="absolute inset-0 bg-repeat bg-center opacity-5" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%239C92AC\' fill-opacity=\'0.12\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
-             <div class="absolute -bottom-20 -right-20 w-60 h-60">
-                <div class="w-full h-full" style="background: radial-gradient(circle, rgba(125,125,125,0.1) 0%, rgba(224,225,226,0) 70%);"></div>
-            </div>
+      <div class="flex flex-col xl:flex-row gap-6">
+        <!-- Posts -->
+        <section class="flex-1 space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold">Latest discussions</h2>
+            <span class="text-sm text-slate-400">{{ posts().length }} posts</span>
+          </div>
 
-            <div class="relative flex-shrink-0 mb-4">
-              <h2 class="text-2xl font-bold text-slate-800">Topics</h2>
+          @if(postsLoading()) {
+            <div class="space-y-3">
+              @for(_ of [1,2,3]; track $index) {
+                <div class="rounded-2xl border border-slate-700/60 bg-slate-900/40 p-6 animate-pulse">
+                  <div class="h-5 w-2/3 bg-slate-700/40 rounded"></div>
+                  <div class="mt-3 h-4 w-full bg-slate-700/30 rounded"></div>
+                  <div class="mt-3 h-4 w-3/4 bg-slate-700/30 rounded"></div>
+                </div>
+              }
             </div>
-            <nav class="relative flex-grow">
-              <ul class="space-y-3 text-slate-700 font-medium">
-                @for(topic of topics(); track $index) {
+          } @else if(postsError() && !posts().length) {
+            <div class="rounded-2xl border border-red-500/60 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+              {{ postsError() }}
+            </div>
+          } @else if(!hasPosts()) {
+            <div class="rounded-2xl border border-slate-700/60 bg-slate-900/30 px-6 py-12 text-center text-slate-300">
+              No posts yet. Be the first to start a discussion.
+            </div>
+          } @else {
+            <div class="space-y-4">
+              @for(post of posts(); track post.postId) {
+                <article class="rounded-2xl border border-slate-200/80 bg-slate-200/95 text-slate-800 p-6 shadow-lg transition hover:shadow-xl cursor-pointer" (click)="openPost(post.postId)">
+                  @let reactionPreview = getReactionPreview(post.recentReactions);
+                  <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-300 pb-3">
+                    <h3 class="text-lg font-semibold text-slate-900">{{ post.title }}</h3>
+                    <span class="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-white border border-slate-700">{{ post.topicTitle }}</span>
+                  </div>
+                  <p class="mt-3 text-sm text-slate-700">{{ post.preview }}</p>
+                  <div class="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                    <span>By {{ post.isAnonymous ? 'Anonymous' : post.authorName }}</span>
+                    @if(post.authorRole) {
+                      <span class="uppercase tracking-wide text-cyan-700">{{ post.authorRole }}</span>
+                    }
+                    <span>{{ post.createdAt | date:'medium' }}</span>
+                  </div>
+                  <div class="mt-4 flex flex-wrap items-center justify-end gap-2 text-sm text-slate-800" (click)="$event.stopPropagation()">
+                    <div class="flex items-center gap-2">
+                      <div class="flex items-center -space-x-2">
+                        @for(user of reactionPreview.displayed; track user.name) {
+                          <img [ngSrc]="user.avatarUrl" [alt]="user.name" width="32" height="32" class="w-8 h-8 rounded-full border-2 border-white shadow-sm" />
+                        }
+                        @if(reactionPreview.remaining > 0) {
+                          <div class="w-8 h-8 rounded-full bg-slate-600 text-white text-xs font-semibold flex items-center justify-center border-2 border-white">
+                            +{{ reactionPreview.remaining }}
+                          </div>
+                        }
+                      </div>
+                      <button
+                        type="button"
+                        class="w-9 h-9 rounded-full bg-slate-800 text-white flex items-center justify-center hover:bg-cyan-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        (click)="handleLike(post.postId)"
+                        [disabled]="hasUserLiked(post.postId)"
+                        title="Like"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 9l-1-5a1 1 0 00-.99-.858h-2.02a1 1 0 00-.99.858L8 9m6 0h4a2 2 0 011.995 2.15l-.65 6.5A2 2 0 0116.36 19H8.64a2 2 0 01-1.985-1.35l-.65-6.5A2 2 0 017 9h6zM7 9H4"></path>
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        class="w-9 h-9 rounded-full bg-slate-800 text-white flex items-center justify-center hover:bg-cyan-600 transition"
+                        (click)="sharePost(post.postId)"
+                        title="Share"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4m0 0L8 6m4-4v14"></path>
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        class="w-9 h-9 rounded-full bg-slate-800 text-white flex items-center justify-center hover:bg-cyan-600 transition"
+                        (click)="openPost(post.postId)"
+                        title="Reply"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h7l-1.586-1.586A2 2 0 018.414 5.414l5.172 5.172a2 2 0 010 2.828l-5.172 5.172A2 2 0 017.414 17.172L9 15H3a2 2 0 01-2-2v-1a2 2 0 012-2z"></path>
+                        </svg>
+                      </button>
+                      <span class="ml-2 text-xs text-slate-500">{{ post.commentCount }} comments</span>
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </section>
+
+        <!-- Topics -->
+        <aside class="w-full xl:w-80 space-y-4">
+          <div class="rounded-2xl border border-slate-200/80 bg-slate-200/95 p-6 sticky top-6 text-slate-800 shadow-lg">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-semibold text-slate-900">Active topics</h2>
+              <span class="text-xs uppercase tracking-widest text-slate-500">Trending</span>
+            </div>
+            @if(activeTopicId()) {
+              <button
+                type="button"
+                class="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-300 bg-cyan-100 px-3 py-1 text-xs font-semibold text-cyan-800 hover:bg-cyan-200 transition"
+                (click)="clearTopicFilter()"
+              >
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 18 6M6 6l12 12"></path>
+                </svg>
+                Clear topic filter
+              </button>
+            }
+            @if(topicsLoading()) {
+              <div class="space-y-2 animate-pulse">
+                @for(_ of [1,2,3]; track $index) {
+                  <div class="h-4 bg-slate-400/40 rounded"></div>
+                }
+              </div>
+            } @else if(topicsError()) {
+              <p class="text-sm text-red-500">{{ topicsError() }}</p>
+            } @else if(topics().length === 0) {
+              <p class="text-sm text-slate-600">No topics available yet.</p>
+            } @else {
+              <ul class="space-y-3 text-sm text-slate-700">
+                @for(topic of topics(); track topic.topicId) {
                   <li>
-                    <a href="#" class="block hover:text-cyan-600 transition-colors">{{ topic }}</a>
+                    <button
+                      type="button"
+                      class="flex w-full items-center justify-between gap-2 rounded-xl border border-slate-300 px-3 py-2 text-left shadow-sm transition hover:bg-cyan-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-500"
+                      [class.bg-cyan-600]="isTopicActive(topic.topicId)"
+                      [class.text-white]="isTopicActive(topic.topicId)"
+                      [class.border-cyan-400]="isTopicActive(topic.topicId)"
+                      [attr.aria-pressed]="isTopicActive(topic.topicId)"
+                      (click)="filterByTopic(topic)"
+                    >
+                      <span class="font-medium" [class.text-white]="isTopicActive(topic.topicId)">{{ topic.title }}</span>
+                      @if(topic.postCount !== undefined) {
+                        <span class="text-xs" [class.text-cyan-100]="isTopicActive(topic.topicId)" [class.text-slate-500]="!isTopicActive(topic.topicId)">
+                          {{ topic.postCount }} posts
+                        </span>
+                      }
+                    </button>
                   </li>
                 }
               </ul>
-            </nav>
+            }
           </div>
-        </div>
+        </aside>
       </div>
     </main>
   </div>
 </div>
+
+@if(showCreatePost()) {
+  <app-forumpost [topics]="topicSuggestions()" (close)="closeCreatePost()" (postCreated)="handlePostCreated()"></app-forumpost>
+}
+
+@if(isPostDialogVisible()) {
+  <app-openpost
+    [post]="selectedPost()"
+    [loading]="selectedPostLoading()"
+    [likedPosts]="likedPostIds()"
+    (close)="closePostView()"
+    (like)="handleLike($event)"
+    (dislike)="handleDislike($event)"
+    (share)="sharePost($event)"
+    (addComment)="handleComment($event)"
+  ></app-openpost>
+  @if(selectedPostError()) {
+    <div class="fixed inset-0 flex items-center justify-center z-40">
+      <div class="rounded-xl bg-red-500/90 px-6 py-3 text-white shadow-2xl">
+        {{ selectedPostError() }}
+      </div>
+    </div>
+  }
+}

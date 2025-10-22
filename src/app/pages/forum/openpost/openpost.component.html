@@ -1,149 +1,234 @@
 <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-  <div class="bg-[#e0e1e2] text-slate-800 rounded-2xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col relative">
-    
-    <button (click)="onClose()" class="absolute top-4 right-4 text-slate-500 hover:text-slate-800 z-10">
-      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+  <div class="bg-slate-900 text-white rounded-2xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col relative">
+    <button type="button" (click)="requestClose()" class="absolute top-4 right-4 text-slate-300 hover:text-white transition-colors">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
     </button>
 
-    <div class="p-6 overflow-y-auto">
-      <!-- Post Header -->
-      <div class="flex justify-between items-start mb-4">
-        <div class="bg-slate-300/70 border border-slate-400 rounded-full py-2 px-6 shadow-inner">
-            <h2 class="text-xl font-bold">{{ post().title }}</h2>
+    <div class="flex-1 overflow-y-auto p-6 space-y-6">
+      @if(loading()) {
+        <div class="rounded-xl bg-slate-800/60 border border-slate-700 px-6 py-4 shadow-inner text-center text-slate-200">
+          Loading post...
         </div>
-        <div class="flex flex-col items-end space-y-2">
-            <div class="flex items-center space-x-3 bg-slate-300/70 border border-slate-400 rounded-full py-1 px-4 shadow-inner">
-                <span class="font-semibold">{{ post().author }}</span>
-                <img [src]="post().authorAvatar" alt="Author Avatar" class="w-10 h-10 rounded-full object-cover">
-            </div>
-            <span class="text-xs font-semibold text-white py-1 px-3 rounded-full" [class]="post().tag.color">{{ post().tag.text }}</span>
-        </div>
-      </div>
+      } @else if(hasPost()) {
+        @let current = post()!;
+        @let preview = getReactionPreviewData();
 
-      <!-- Main Post Content -->
-      <div class="bg-slate-300/60 rounded-xl p-4 shadow mb-4">
-        <p class="mb-4">{{ post().content }}</p>
-        @if(post().imageUrl) {
-            <img [src]="post().imageUrl" alt="Post image" class="rounded-lg max-w-xs shadow-md">
-        }
-        <div class="flex justify-between items-center mt-4">
-            <span class="text-sm text-slate-500 font-medium">Time Posted: {{ post().timestamp }}</span>
-            <div class="flex items-center space-x-2">
-                <img src="https://i.imgur.com/L5zOLum.png" alt="Reaction" class="w-9 h-9">
-                <button class="w-9 h-9 flex items-center justify-center bg-slate-500 hover:bg-slate-600/80 rounded-full transition-colors">
-                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"></path></svg>
-                </button>
-                <button class="w-9 h-9 flex items-center justify-center bg-slate-500 hover:bg-slate-600/80 rounded-full transition-colors">
-                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path></svg>
-                </button>
-                <button class="w-9 h-9 flex items-center justify-center bg-slate-500 hover:bg-slate-600/80 rounded-full transition-colors">
-                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 017 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                </button>
+        <section class="bg-[#e0e1e2] text-slate-800 rounded-2xl shadow-inner p-6 space-y-6">
+          <header class="space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <h2 class="text-2xl font-bold">{{ current.title }}</h2>
+              <span class="text-xs font-semibold text-white py-1 px-3 rounded-full bg-slate-600">{{ current.topicTitle }}</span>
             </div>
-        </div>
-      </div>
-
-      <!-- Replies -->
-      <div class="space-y-4">
-        @for(reply of post().replies; track $index) {
-          <!-- Level 1 Reply -->
-          <div class="bg-slate-300/60 rounded-xl p-4 shadow">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-3">
-                    <div class="flex items-center space-x-3 bg-slate-300/70 border border-slate-400 rounded-full p-1 pr-4 shadow-inner">
-                        <img [src]="reply.avatar" alt="Author Avatar" class="w-10 h-10 rounded-full object-cover">
-                        <span class="font-semibold">{{ reply.author }}</span>
-                    </div>
-                    <p>{{ reply.content }}</p>
+            <div class="flex flex-wrap items-center gap-4 text-sm text-slate-600">
+              <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-500 text-white font-semibold">
+                  {{ getInitials(current.isAnonymous ? 'Anonymous' : current.authorName) }}
                 </div>
-                 <div class="flex items-center space-x-2">
-                    @if(reply.isVerified) {
-                        <img src="https://i.imgur.com/L5zOLum.png" alt="Reaction" class="w-9 h-9">
-                    }
-                    <button class="w-9 h-9 flex items-center justify-center bg-slate-500 hover:bg-slate-600/80 rounded-full transition-colors">
-                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"></path></svg>
-                    </button>
-                    <button class="w-9 h-9 flex items-center justify-center bg-slate-500 hover:bg-slate-600/80 rounded-full transition-colors">
-                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path></svg>
-                    </button>
-                    <button class="w-9 h-9 flex items-center justify-center bg-slate-500 hover:bg-slate-600/80 rounded-full transition-colors">
-                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 017 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                    </button>
+                <div class="flex flex-col">
+                  <span class="font-semibold text-slate-800">
+                    {{ current.isAnonymous ? 'Anonymous' : current.authorName }}
+                  </span>
+                  @if(current.authorRole) {
+                    <span class="text-xs uppercase tracking-wide text-cyan-700">{{ current.authorRole }}</span>
+                  }
                 </div>
+              </div>
+              <span class="text-slate-500">{{ current.createdAt | date: 'medium' }}</span>
             </div>
-            <p class="text-sm text-slate-500 font-medium mt-2">Time Posted: {{ reply.timestamp }}</p>
+          </header>
 
-            <!-- Nested Replies -->
-            @if (reply.replies && reply.replies.length > 0) {
-              <div class="mt-4 pl-8 relative">
-                @for(nestedReply of reply.replies; track $index; let isLast = $last) {
-                    <!-- Thread line -->
-                    <div class="absolute left-2 top-0 h-full border-l-2 border-slate-400"></div>
-                    <div class="absolute left-2 top-8 w-6 border-t-2 border-slate-400"></div>
-                    
-                    <div class="bg-slate-300/60 rounded-xl p-4 shadow" [class.mb-4]="!isLast">
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center space-x-3">
-                               <div class="flex items-center space-x-3 bg-slate-300/70 border border-slate-400 rounded-full p-1 pr-4 shadow-inner">
-                                    <img [src]="nestedReply.avatar" alt="Author Avatar" class="w-10 h-10 rounded-full object-cover">
-                                    <span class="font-semibold">{{ nestedReply.author }}</span>
-                                </div>
-                                <p>{{ nestedReply.content }}</p>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <button class="w-9 h-9 flex items-center justify-center bg-slate-500 hover:bg-slate-600/80 rounded-full transition-colors">
-                                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"></path></svg>
-                                </button>
-                                <button class="w-9 h-9 flex items-center justify-center bg-slate-500 hover:bg-slate-600/80 rounded-full transition-colors">
-                                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path></svg>
-                                </button>
-                                <button class="w-9 h-9 flex items-center justify-center bg-slate-500 hover:bg-slate-600/80 rounded-full transition-colors">
-                                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 017 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                                </button>
-                            </div>
-                        </div>
-                         <p class="text-sm text-slate-500 font-medium mt-2">Time Posted: {{ nestedReply.timestamp }}</p>
-
-                         <!-- Level 3 replies -->
-                         @if (nestedReply.replies && nestedReply.replies.length > 0) {
-                            <div class="mt-4 pl-8 relative">
-                                @for(level3Reply of nestedReply.replies; track $index; let isLast3 = $last) {
-                                    <!-- Thread line -->
-                                    <div class="absolute left-2 top-0 h-full border-l-2 border-slate-400"></div>
-                                    <div class="absolute left-2 top-8 w-6 border-t-2 border-slate-400"></div>
-                                    <div class="bg-slate-300/60 rounded-xl p-4 shadow" [class.mb-4]="!isLast3">
-                                        <div class="flex justify-between items-center">
-                                            <div class="flex items-center space-x-3">
-                                            <div class="flex items-center space-x-3 bg-slate-300/70 border border-slate-400 rounded-full p-1 pr-4 shadow-inner">
-                                                    <img [src]="level3Reply.avatar" alt="Author Avatar" class="w-10 h-10 rounded-full object-cover">
-                                                    <span class="font-semibold">{{ level3Reply.author }}</span>
-                                                </div>
-                                                <p>{{ level3Reply.content }}</p>
-                                            </div>
-                                            <div class="flex items-center space-x-2">
-                                                <button class="w-9 h-9 flex items-center justify-center bg-slate-500 hover:bg-slate-600/80 rounded-full transition-colors">
-                                                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"></path></svg>
-                                                </button>
-                                                <button class="w-9 h-9 flex items-center justify-center bg-slate-500 hover:bg-slate-600/80 rounded-full transition-colors">
-                                                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path></svg>
-                                                </button>
-                                                <button class="w-9 h-9 flex items-center justify-center bg-slate-500 hover:bg-slate-600/80 rounded-full transition-colors">
-                                                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 017 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <p class="text-sm text-slate-500 font-medium mt-2">Time Posted: {{ level3Reply.timestamp }}</p>
-                                    </div>
-                                }
-                            </div>
-                         }
-                    </div>
+          <section class="bg-slate-300/60 rounded-2xl border border-slate-400 p-6 shadow-inner space-y-4">
+            <p class="leading-relaxed text-slate-800 whitespace-pre-wrap">
+              {{ current.content }}
+            </p>
+            @if(current.tags?.length) {
+              <div class="flex flex-wrap gap-2">
+                @for(tag of current.tags; track tag) {
+                  <span class="rounded-full bg-slate-500/20 text-slate-600 text-xs px-3 py-1 border border-slate-400/50">
+                    {{ tag }}
+                  </span>
                 }
               </div>
             }
-          </div>
-        }
-      </div>
+            <div class="flex flex-wrap items-center justify-between gap-4 text-sm text-slate-600">
+              <span class="text-xs text-slate-500">{{ current.commentCount ?? current.comments.length }} comments</span>
+              <div class="flex items-center gap-2">
+                <div class="flex items-center -space-x-2">
+                  @for(user of preview.displayed; track user.name) {
+                    <img [ngSrc]="user.avatarUrl" [alt]="user.name" width="32" height="32" class="w-8 h-8 rounded-full border-2 border-slate-300 shadow-sm" />
+                  }
+                @if(preview.remaining > 0) {
+                  <div class="w-8 h-8 rounded-full bg-slate-500 text-white text-xs font-semibold flex items-center justify-center border-2 border-slate-300">
+                    +{{ preview.remaining }}
+                  </div>
+                }
+              </div>
+              <button
+                type="button"
+                class="w-9 h-9 rounded-full bg-slate-500 text-white flex items-center justify-center hover:bg-slate-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                (click)="handleLike()"
+                [disabled]="isLikedByUser()"
+                  title="Like"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 9l-1-5a1 1 0 00-.99-.858h-2.02a1 1 0 00-.99.858L8 9m6 0h4a2 2 0 011.995 2.15l-.65 6.5A2 2 0 0116.36 19H8.64a2 2 0 01-1.985-1.35l-.65-6.5A2 2 0 017 9h6zM7 9H4"></path>
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="w-9 h-9 rounded-full bg-slate-500 text-white flex items-center justify-center hover:bg-slate-600 transition"
+                  (click)="handleShare()"
+                  title="Share"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4m0 0L8 6m4-4v14"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="space-y-4">
+          @if(current.comments.length === 0) {
+            <p class="text-slate-300 text-sm">No comments yet. Start the discussion below.</p>
+          } @else {
+            @for(comment of current.comments; track comment.commentId) {
+              <article class="rounded-2xl border border-slate-700 bg-slate-800/70 p-5 space-y-3">
+                <div class="flex items-start gap-4">
+                  <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-slate-500 text-white font-semibold">
+                    {{ getInitials(comment.authorName) }}
+                  </div>
+                  <div class="flex-1 space-y-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span class="font-semibold text-white">{{ comment.authorName }}</span>
+                      @if(comment.authorRole) {
+                        <span class="text-xs uppercase tracking-wide text-cyan-300">{{ comment.authorRole }}</span>
+                      }
+                      @if(comment.isInstructor) {
+                        <span class="text-xs rounded-full bg-cyan-600/20 text-cyan-200 px-2 py-1 border border-cyan-400/40">
+                          Instructor
+                        </span>
+                      }
+                      <span class="text-xs text-slate-400">{{ comment.createdAt | date: 'medium' }}</span>
+                    </div>
+                    <p class="text-slate-100 whitespace-pre-wrap">{{ comment.content }}</p>
+                    <div>
+                      <button
+                        type="button"
+                        class="inline-flex items-center gap-1 rounded-full bg-cyan-900/30 px-3 py-1 text-xs font-semibold text-cyan-200 hover:bg-cyan-800/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-300 transition"
+                        (click)="startReply({ commentId: comment.commentId, authorName: comment.authorName, mongoId: comment.mongoId ?? null })"
+                      >
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10l9-7v4c6 0 9 3 9 9 0 2-1 4-2.5 5.5"></path>
+                        </svg>
+                        Reply
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                @if(comment.replies?.length) {
+                  <div class="mt-3 space-y-3 border-l-2 border-slate-600 pl-4">
+                    @for(reply of comment.replies; track reply.commentId) {
+                      <div class="rounded-xl bg-slate-700/70 border border-slate-600 p-4 space-y-2">
+                        <div class="flex flex-wrap items-center gap-2">
+                          <span class="font-semibold text-white">{{ reply.authorName }}</span>
+                          @if(reply.authorRole) {
+                            <span class="text-xs uppercase tracking-wide text-cyan-300">{{ reply.authorRole }}</span>
+                          }
+                          @if(reply.isInstructor) {
+                            <span class="text-xs rounded-full bg-cyan-600/20 text-cyan-200 px-2 py-1 border border-cyan-400/40">
+                              Instructor
+                            </span>
+                          }
+                          <span class="text-xs text-slate-400">{{ reply.createdAt | date: 'medium' }}</span>
+                        </div>
+                        <p class="text-slate-100 whitespace-pre-wrap">{{ reply.content }}</p>
+                        <div>
+                          <button
+                            type="button"
+                            class="inline-flex items-center gap-1 rounded-full bg-cyan-900/30 px-3 py-1 text-xs font-semibold text-cyan-200 hover:bg-cyan-800/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-300 transition"
+                            (click)="startReply({ commentId: reply.commentId, authorName: reply.authorName, mongoId: reply.mongoId ?? null })"
+                          >
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10l9-7v4c6 0 9 3 9 9 0 2-1 4-2.5 5.5"></path>
+                            </svg>
+                            Reply
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </article>
+            }
+          }
+        </section>
+      } @else {
+        <div class="rounded-xl bg-slate-800/60 border border-slate-700 px-6 py-4 shadow-inner text-center text-slate-200">
+          Select a post to view the discussion.
+        </div>
+      }
     </div>
+
+    @if(!loading() && hasPost()) {
+      <footer class="border-t border-slate-800 bg-slate-900/95 px-6 py-4">
+        <form [formGroup]="commentForm" (ngSubmit)="submitComment()" class="space-y-2">
+          <div class="flex items-start gap-3 rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-3">
+            <div class="flex-1 flex flex-col gap-2">
+              @if(replyTarget()) {
+                <div class="inline-flex items-center gap-2 rounded-full bg-cyan-900/30 px-3 py-1 text-xs text-cyan-200">
+                  <span>Replying to <span class="font-semibold text-white">{{ replyTarget()?.authorName }}</span></span>
+                  <button
+                    type="button"
+                    class="text-xs font-semibold text-cyan-100 hover:text-white transition disabled:opacity-60 disabled:cursor-not-allowed"
+                    (click)="cancelReply()"
+                    [disabled]="commentSubmitting()"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              }
+              <textarea
+                #commentInput
+                formControlName="content"
+                rows="1"
+                class="flex-1 bg-transparent border-none resize-none text-sm text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-0 leading-6 min-h-[2.5rem]"
+                placeholder="Type a comment..."
+              ></textarea>
+            </div>
+            <button
+              type="submit"
+              class="inline-flex items-center gap-2 rounded-md bg-cyan-600 px-3 py-2 text-sm font-semibold text-white hover:bg-cyan-500 transition disabled:opacity-60 disabled:cursor-not-allowed"
+              [disabled]="commentSubmitting()"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 2L11 13"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 2l-7 20-4-9-9-4z"></path>
+              </svg>
+              <span>@if(commentSubmitting()) { Sending... } @else { Send }</span>
+            </button>
+          </div>
+          @if(commentForm.controls.content.invalid && commentForm.controls.content.touched) {
+            <span class="text-sm text-red-400">Comment must be between 1 and 1000 characters.</span>
+          }
+          <div class="flex justify-end">
+            <button
+              type="button"
+              class="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white transition"
+              [disabled]="commentSubmitting()"
+              (click)="requestClose()"
+            >
+              Close
+            </button>
+          </div>
+        </form>
+      </footer>
+    }
   </div>
 </div>
+
+

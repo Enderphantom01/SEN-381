@@ -1,55 +1,108 @@
-<div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+<div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
   <div class="bg-[#e0e1e2] text-slate-800 rounded-2xl shadow-2xl w-full max-w-3xl border border-slate-600">
-    <div class="p-6 border-b border-slate-400/50">
-      <h2 class="text-2xl font-bold">New Post</h2>
-    </div>
-    <div class="p-8 space-y-6">
-      <div class="grid grid-cols-3 gap-6">
-        <div class="col-span-2">
-          <input type="text" value="Difference Between Supervised and Unsupervised Learning?" class="w-full bg-slate-300/70 border border-slate-400 rounded-full py-3 px-5 text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-inner">
+    <header class="flex items-center justify-between p-6 border-b border-slate-400/50">
+      <h2 class="text-2xl font-bold">Create Forum Post</h2>
+      <button type="button" (click)="cancel()" class="text-slate-500 hover:text-slate-800 transition-colors">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="p-6 space-y-5">
+      @if(errorMessage()) {
+        <div class="rounded-xl bg-red-100 text-red-700 px-4 py-3 text-sm">
+          {{ errorMessage() }}
         </div>
-        <div class="col-span-1">
-           <button class="w-full bg-[#4A5568] hover:bg-slate-600 text-white font-bold py-3 px-6 rounded-full shadow-md transition-colors">
-            Post
-          </button>
-        </div>
+      }
+
+      <div class="space-y-2">
+        <label for="title" class="text-sm font-semibold text-slate-700">Title</label>
+        <input
+          id="title"
+          type="text"
+          formControlName="title"
+          class="w-full bg-slate-300/70 border border-slate-400 rounded-full py-3 px-5 text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-inner transition"
+          placeholder="What would you like to discuss?"
+          [class.border-red-500]="form.controls.title.invalid && form.controls.title.touched"
+        />
+        @if(form.controls.title.invalid && form.controls.title.touched) {
+          <p class="text-sm text-red-600">Please provide a title between 5 and 200 characters.</p>
+        }
       </div>
-       <div class="grid grid-cols-3 gap-6">
-        <div class="col-span-2 flex items-center gap-4">
-          <button class="bg-slate-300/70 border border-slate-400 rounded-full py-2 px-5 text-slate-600 font-semibold shadow-inner">Add Subject</button>
-          <button class="bg-slate-300/70 border border-slate-400 rounded-full py-2 px-5 text-slate-800 font-semibold shadow-inner">Machine Learning</button>
+
+      <div class="grid gap-4 md:grid-cols-[2fr,1fr]">
+        <div class="space-y-2">
+          <label for="topicInput" class="text-sm font-semibold text-slate-700">Topic</label>
+          <input
+            id="topicInput"
+            type="text"
+            [value]="topicInput()"
+            (input)="onTopicInputChange($any($event.target).value)"
+            list="forum-topics-list"
+            class="w-full bg-slate-300/70 border border-slate-400 rounded-full py-3 px-5 text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-inner transition"
+            placeholder="Start typing to select a topic"
+            autocomplete="off"
+          />
+          <datalist id="forum-topics-list">
+            @for(topic of topics(); track topic.topicId) {
+              <option [value]="topic.title">{{ topic.topicId }}</option>
+            }
+          </datalist>
+          @if(!topics().length) {
+            <p class="text-sm text-slate-500">No topics available yet.</p>
+          } @else if(form.controls.topicId.invalid && form.controls.topicId.touched) {
+            <p class="text-sm text-red-600">Choose a topic from the suggestions.</p>
+          }
         </div>
-        <div class="col-span-1">
-           <button (click)="onCancel()" class="w-full bg-[#4A5568] hover:bg-slate-600 text-white font-bold py-3 px-6 rounded-full shadow-md transition-colors">
-            Cancel
-          </button>
+
+        <div class="flex items-center justify-between rounded-full bg-slate-300/70 border border-slate-400 px-5 py-3 shadow-inner">
+          <label for="isAnonymous" class="text-sm font-semibold text-slate-700">Post anonymously</label>
+          <input id="isAnonymous" type="checkbox" formControlName="isAnonymous" class="h-5 w-5 accent-cyan-600" />
         </div>
       </div>
 
-      <div class="bg-slate-300/70 border border-slate-400 rounded-xl shadow-inner flex flex-col">
-        <textarea class="w-full h-48 bg-transparent p-5 text-slate-800 placeholder-slate-500 focus:outline-none resize-none" placeholder="Share your thoughts...">I understand that supervised learning uses labeled data, but I'm still confused about when to use unsupervised learning in real-world applications. Can someone give an example or analogy?</textarea>
-        <div class="flex items-center space-x-4 p-3 border-t border-slate-400/50 text-slate-600">
-           <button class="hover:text-slate-900">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4v16m8-16v16M4 8h16M4 16h16"></path></svg>
-            <span class="font-bold">B</span>
-          </button>
-           <button class="hover:text-slate-900 italic">
-             <span class="font-serif">I</span>
-           </button>
-           <button class="hover:text-slate-900 underline">
-             U
-           </button>
-           <button class="hover:text-slate-900">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
-           </button>
-            <button class="hover:text-slate-900">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-           </button>
-           <button class="hover:text-slate-900">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
-           </button>
-        </div>
+      <div class="space-y-2">
+        <label for="content" class="text-sm font-semibold text-slate-700">Content</label>
+        <textarea
+          id="content"
+          formControlName="content"
+          class="w-full h-48 bg-slate-300/70 border border-slate-400 rounded-2xl py-4 px-5 text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-inner resize-none transition"
+          placeholder="Share the details, include context, and let others help."
+        ></textarea>
+        @if(form.controls.content.invalid && form.controls.content.touched) {
+          <p class="text-sm text-red-600">Content must be between 10 and 5000 characters.</p>
+        }
       </div>
-    </div>
+
+      <div class="space-y-2">
+        <label for="tags" class="text-sm font-semibold text-slate-700">Tags</label>
+        <input
+          id="tags"
+          type="text"
+          formControlName="tags"
+          class="w-full bg-slate-300/70 border border-slate-400 rounded-full py-3 px-5 text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-inner transition"
+          placeholder="Comma separated e.g. data science, assignment 3"
+        />
+      </div>
+
+      <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
+        <button
+          type="button"
+          class="w-full sm:w-auto px-6 py-3 rounded-full bg-slate-500 hover:bg-slate-600 text-white font-semibold transition"
+          (click)="cancel()"
+          [disabled]="submitting()"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="w-full sm:w-auto px-6 py-3 rounded-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed"
+          [disabled]="submitting()"
+        >
+          @if(submitting()) { Posting... } @else { Post }
+        </button>
+      </div>
+    </form>
   </div>
 </div>
