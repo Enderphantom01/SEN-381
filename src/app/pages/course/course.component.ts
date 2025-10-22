@@ -26,10 +26,12 @@ interface CourseSection {
   isEditing?: boolean;
 }
 
+import { RouterModule } from '@angular/router';
+
 @Component({
   selector: 'app-course',
   templateUrl: './course.component.html',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CourseComponent implements OnInit {

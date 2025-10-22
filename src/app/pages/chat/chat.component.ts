@@ -35,10 +35,12 @@ export interface Message {
   };
 }
 
+import { RouterModule } from '@angular/router';
+
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './chat.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

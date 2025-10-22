@@ -9,10 +9,12 @@ interface Topic {
   description: string;
 }
 
+import { RouterModule } from '@angular/router';
+
 @Component({
   selector: 'app-topics',
   templateUrl: './topics.component.html',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TopicsComponent implements OnInit {

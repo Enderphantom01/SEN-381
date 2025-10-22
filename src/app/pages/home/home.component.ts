@@ -44,10 +44,12 @@ interface CalendarDay {
   hasEvent: boolean;
 }
 
+import { RouterModule } from '@angular/router'; 
+
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule], 
   templateUrl: './home.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
