@@ -61,12 +61,12 @@
           <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
           <span class="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 block h-3 w-3 rounded-full bg-teal-400 ring-2 ring-slate-700"></span>
         </button>
-        <div class="flex items-center space-x-3 px-4 py-2 bg-slate-700/80 backdrop-blur-sm rounded-full cursor-pointer hover:bg-slate-600 transition-colors" (click)="logout()">
-          <div class="w-8 h-8 flex items-center justify-center bg-slate-500 rounded-full">
-            <svg class="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
-          </div>
-          <span class="font-semibold hidden sm:inline">Logout</span>
-        </div>
+        <button routerLink="/profile" class="flex items-center space-x-3 px-4 py-2 bg-slate-700/80 backdrop-blur-sm rounded-full cursor-pointer hover:bg-slate-600 transition-colors">
+  <div class="w-8 h-8 flex items-center justify-center bg-slate-500 rounded-full">
+    <svg class="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+  </div>
+  <span class="font-semibold hidden sm:inline">Profile</span>
+</button>
       </div>
     </header>
 

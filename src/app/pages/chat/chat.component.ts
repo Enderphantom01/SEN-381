@@ -61,32 +61,63 @@ export class ChatComponent implements OnInit, OnDestroy {
   private isApiKeyLoaded = signal<boolean>(false);
   private cachedCsvBase64: string | null = null;
 
+  
+
+
   // User info
   currentUser = signal<any>(null);
 
   // Recent chats (contacts you've actually chatted with)
   recentContacts = signal<Contact[]>([
-    { 
-      id: '1', 
-      name: 'AI Assistant', 
-      role: 'AI Tutor', 
-      isAi: true, 
-      status: 'online', 
-      userId: 'ai-assistant', 
-      lastMessage: 'Hello! I am your AI Assistant. How can I help you today?', 
-      lastMessageTime: '09:00',
-      avatar: 'https://i.imgur.com/2a2eL5h.png'
-    },
-    { 
-      id: '0', 
-      name: 'Me', 
-      role: 'Personal Notes', 
-      status: 'online', 
-      userId: 'current-user', 
-      lastMessage: 'Note to self: Finish the Angular project documentation.', 
-      lastMessageTime: 'Yesterday' 
-    },
-  ]);
+  { 
+    id: '1', 
+    name: 'AI Assistant', 
+    role: 'AI Tutor', 
+    isAi: true, 
+    status: 'online', 
+    userId: 'ai-assistant', 
+    lastMessage: 'Hello! I am your AI Assistant. How can I help you today?', 
+    lastMessageTime: '09:00',
+    avatar: 'https://i.imgur.com/2a2eL5h.png'
+  },
+  { 
+    id: '0', 
+    name: 'Me', 
+    role: 'Personal Notes', 
+    status: 'online', 
+    userId: 'current-user', 
+    lastMessage: '', 
+    lastMessageTime: 'Yesterday' 
+  },
+  // New dummy contacts
+  { 
+    id: '2', 
+    name: 'James Anderson', 
+    role: 'Lecturer', 
+    status: 'online', 
+    userId: 'james-anderson', 
+    lastMessage: 'The assignment deadline has been extended to Friday.', 
+    lastMessageTime: '10:15' 
+  },
+  { 
+    id: '3', 
+    name: 'Caren Clark', 
+    role: 'Student', 
+    status: 'away', 
+    userId: 'caren-clark', 
+    lastMessage: 'Did you understand the calculus problem?', 
+    lastMessageTime: 'Yesterday' 
+  },
+  { 
+    id: '4', 
+    name: 'Joshua King', 
+    role: 'Student', 
+    status: 'offline', 
+    userId: 'joshua-king', 
+    lastMessage: 'Study group at 3 PM in the library?', 
+    lastMessageTime: '2 days ago' 
+  },
+]);
 
   // Search results
   searchResults = signal<Contact[]>([]);
@@ -97,13 +128,16 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   // All messages stored by contact ID
   allMessages = signal<Record<string, Message[]>>({
-    '1': [ // AI Assistant
-      { id: '1', senderId: '1', text: 'Hello! I am your AI Assistant. How can I help you today?', timestamp: '09:00' },
-    ],
-    '0': [ // Me (Personal Chat)
-      { id: '1', senderId: '0', text: 'Note to self: Finish the Angular project documentation.', timestamp: 'Yesterday' },
-    ],
-  });
+  '1': [ // AI Assistant
+    { id: '1', senderId: '1', text: 'Hello! I am your AI Assistant. How can I help you today?', timestamp: '09:00' },
+  ],
+  '0': [ // Me (Personal Chat)
+  ],
+  // Add empty message arrays for new contacts
+  '2': [{ id: '2', senderId: '2', text: 'The assignment deadline has been extended to Friday.', timestamp: '09:00' }], // James Anderson
+  '3': [{ id: '3', senderId: '3', text: 'Did you understand the calculus problem?', timestamp: '09:00' }], // Caren Clark
+  '4': [{ id: '4', senderId: '4', text: 'Study group at 3 PM in the library?', timestamp: '09:00' }], // Joshua King
+});
 
   // Computed contacts list - shows search results when searching, otherwise recent contacts
   contacts = computed(() => {

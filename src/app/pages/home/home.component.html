@@ -62,12 +62,12 @@
           <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
           <span class="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 block h-3 w-3 rounded-full bg-teal-400 ring-2 ring-slate-700"></span>
         </button>
-        <div class="flex items-center space-x-3 px-4 py-2 bg-slate-700/80 backdrop-blur-sm rounded-full cursor-pointer hover:bg-slate-600 transition-colors" (click)="logout()">
-          <div class="w-8 h-8 flex items-center justify-center bg-slate-500 rounded-full">
-            <svg class="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
-          </div>
-          <span class="font-semibold hidden sm:inline">Logout</span>
-        </div>
+        <button routerLink="/profile" class="flex items-center space-x-3 px-4 py-2 bg-slate-700/80 backdrop-blur-sm rounded-full cursor-pointer hover:bg-slate-600 transition-colors">
+  <div class="w-8 h-8 flex items-center justify-center bg-slate-500 rounded-full">
+    <svg class="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+  </div>
+  <span class="font-semibold hidden sm:inline">Profile</span>
+</button>
       </div>
     </header>
 
@@ -86,22 +86,41 @@
           </div>
       </div>
       
+    
       <!-- Chats -->
-      <div class="col-span-4 lg:col-start-4 lg:row-span-3 bg-slate-200/95 backdrop-blur-sm rounded-2xl p-4 flex flex-col text-slate-800 shadow-lg">
-          <div class="flex-shrink-0 p-2">
-              <h3 class="text-center text-xl font-bold bg-slate-800 text-white py-2 px-4 rounded-full">Chats</h3>
-          </div>
-           <div class="flex-grow my-4 flex items-center justify-center">
-             <div class="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
-               <svg class="w-12 h-12 text-gray-500 transform -rotate-12" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a6 6 0 00-6 6v3.586l-1.707 1.707A1 1 0 003 15v1a1 1 0 001 1h12a1 1 0 001-1v-1a1 1 0 00-.293-.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
-             </div>
-          </div>
-          <div class="flex-shrink-0 flex justify-center items-center pt-2">
-              <div class="w-10 h-10 bg-slate-300 rounded-full flex items-center justify-center cursor-pointer hover:bg-slate-400 transition-colors" (click)="navigateToChats()">
-                  <svg class="w-6 h-6 transform -rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-              </div>
-          </div>
-      </div>
+<div class="col-span-4 lg:col-start-4 lg:row-span-3 bg-slate-200/95 backdrop-blur-sm rounded-2xl p-4 flex flex-col text-slate-800 shadow-lg">
+    <div class="flex-shrink-0 p-2">
+        <h3 class="text-center text-xl font-bold bg-slate-800 text-white py-2 px-4 rounded-full">Chats</h3>
+    </div>
+    <div class="flex-grow my-4 space-y-3 overflow-y-auto">
+        @for(contact of chats(); track contact.name) {
+            <div class="flex items-center p-2 rounded-lg transition-all duration-200 hover:bg-gray-300/50">
+                <div class="relative flex-shrink-0">
+                    @if(contact.avatar === 'ai') {
+                        <div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center ring-2" [class]="contact.borderColor">
+                            <svg class="w-6 h-6 text-cyan-300" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M152 48a8 8 0 0 0-8 8v24h-16V56a8 8 0 0 0-16 0v24h-16V56a8 8 0 0 0-16 0v32a8 8 0 0 0 8 8h24v16H88v16H64a8 8 0 0 0 0 16h24v16h16v16a8 8 0 0 0 16 0v-16h16v16a8 8 0 0 0 16 0v-24h24a8 8 0 0 0 8-8V88a8 8 0 0 0-8-8h-24V56a8 8 0 0 0-8-8M104 104v-8h16v8Zm32 0h-16v-8h16Zm-16 32v-16h16v16Zm40-24a8 8 0 0 0 8-8V56a8 8 0 0 0-16 0v24h-8a8 8 0 0 0 0 16h8v8a8 8 0 0 0 16 0v-8h8a8 8 0 0 0 8-8m-32 56h-16v16a8 8 0 0 0 16 0Zm-32-16v-8h16v8Zm16-8h-16v-8h16Zm104-40V56a8 8 0 0 0-16 0v8h-8a8 8 0 0 0 0 16h8v16h-32a8 8 0 0 0-8 8v16h-16v-8a8 8 0 0 0-16 0v8h-8a8 8 0 0 0-8 8v40H56a8 8 0 0 0-8 8v8a8 8 0 0 0 16 0v-8h24v24h16v-8h16v16a8 8 0 0 0 16 0v-16h16v16a8 8 0 0 0 16 0v-24h8a8 8 0 0 0 0-16h-8v-8a8 8 0 0 0-8-8m-48 64h-16v8a8 8 0 0 0 16 0Zm-16-8v-8h16v8Z"/></svg>
+                        </div>
+                    } @else {
+                        <div class="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center ring-2" [class]="contact.borderColor">
+                            <svg class="w-6 h-6 text-gray-200" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    }
+                </div>
+                <div class="flex-grow ml-3 min-w-0">
+                    <p class="font-bold text-sm text-gray-800 truncate">{{ contact.name }}</p>
+                    <p class="text-xs text-gray-600 truncate">{{ contact.role }}</p>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="flex-shrink-0 flex justify-center items-center pt-2">
+        <div class="w-10 h-10 bg-slate-300 rounded-full flex items-center justify-center cursor-pointer hover:bg-slate-400 transition-colors" (click)="navigateToChats()">
+            <svg class="w-6 h-6 transform -rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </div>
+    </div>
+</div>
 
       <!-- Calendar & Upcoming -->
       <div class="col-span-4 lg:col-span-1 lg:row-start-2 lg:row-span-2 bg-slate-900/80 backdrop-blur-sm rounded-2xl p-4 flex flex-col shadow-lg">
