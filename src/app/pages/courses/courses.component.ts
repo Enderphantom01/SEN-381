@@ -4,12 +4,10 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ApiService, Course } from '../../services/api.service';
 
-import { RouterModule } from '@angular/router';
-
 @Component({
   selector: 'app-courses',
   templateUrl: './courses.component.html',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CoursesComponent implements OnInit {

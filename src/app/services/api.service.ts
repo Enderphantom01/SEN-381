@@ -488,7 +488,6 @@ export class ApiService {
   deleteContentItem(id: string): Observable<any> {
     return this.http.delete(`${this.baseUrl}/content/${id}`, { headers: this.getHeaders() });
   }
-  
 
   // Topics Methods
   getTopics(params?: any): Observable<any> {
@@ -595,8 +594,6 @@ export class ApiService {
     return this.http.put(`${this.baseUrl}/admin/tutors/${tutorId}/approve`, approvalData, { headers: this.getHeaders() });
   }
 
-
-
   // AI Methods
   getGeminiApiKey(): Observable<{ apiKey: string; status: string }> {
     return this.http.get<{ apiKey: string; status: string }>(
@@ -688,27 +685,4 @@ export class ApiService {
   getSocket(): Socket | null {
     return this.socket;
   }
-  // Enhanced Admin Methods
-getAdminAnalytics(): Observable<any> {
-  return this.http.get(`${this.baseUrl}/admin/analytics/user-engagement`, { headers: this.getHeaders() });
-}
-
-getAdminContentAnalytics(): Observable<any> {
-  return this.http.get(`${this.baseUrl}/admin/analytics/content`, { headers: this.getHeaders() });
-}
-
-getAdminSystemHealth(): Observable<any> {
-  return this.http.get(`${this.baseUrl}/admin/system/health`, { headers: this.getHeaders() });
-}
-
-getAdminTutors(status?: string): Observable<any> {
-  const params: any = {};
-  if (status) {
-    params.status = status;
-  }
-  return this.http.get(`${this.baseUrl}/admin/tutors`, { 
-    headers: this.getHeaders(), 
-    params 
-  });
-}
 }

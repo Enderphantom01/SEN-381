@@ -23,11 +23,6 @@ export const routes: Routes = [
     
   },
   { 
-    path: 'profile', 
-    loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent),
-    
-  },
-  { 
     path: 'chats', 
     loadComponent: () => import('./pages/chat/chat.component').then(m => m.ChatComponent),
     canActivate: [authGuard]
