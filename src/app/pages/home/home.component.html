@@ -90,8 +90,14 @@
 
         <div class="relative p-2" (mouseenter)="showProfileDropdown.set(true)" (mouseleave)="showProfileDropdown.set(false)">
           <div class="flex items-center space-x-3 px-4 py-2 bg-slate-700/80 backdrop-blur-sm rounded-full cursor-pointer hover:bg-slate-600 transition-colors">
-            <div class="w-8 h-8 flex items-center justify-center bg-slate-500 rounded-full">
-              <svg class="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+            <div class="w-8 h-8 flex items-center justify-center bg-slate-500 rounded-full overflow-hidden">
+              @if (currentUser()?.profilePictureUrl) {
+                <img [src]="currentUser()?.profilePictureUrl" alt="Profile Picture" class="w-full h-full object-cover">
+              } @else {
+                <svg class="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                </svg>
+              }
             </div>
             <span class="font-semibold hidden sm:inline">{{ getUserDisplayName() }}</span>
           </div>

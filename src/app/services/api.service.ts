@@ -19,6 +19,7 @@ export interface User {
   subjects?: string[];
   isApproved?: boolean;
   rating?: number;
+  profilePictureUrl?: string | null;
 }
 
 export interface LoginResponse {
@@ -416,6 +417,23 @@ export class ApiService {
 
   updateContent(contentId: string, contentData: Partial<CourseContent>): Observable<CourseContent> {
     return this.http.put<CourseContent>(`${this.baseUrl}/courses/content/${contentId}`, contentData, { headers: this.getHeaders() });
+  }
+
+  updateCurrentUser(updatedData: Partial<User>): void {
+    const currentUser = this.currentUser.value;
+    if (currentUser) {
+      // Merge the old data with the new data
+      const newUser = { ...currentUser, ...updatedData };
+      
+      // Update the BehaviorSubject to notify all subscribers
+      this.currentUser.next(newUser);
+      
+      // Update localStorage to persist the changes across page reloads
+      if (this.isBrowser) {
+        localStorage.setItem('currentUser', JSON.stringify(newUser));
+      }
+      console.log('Local user data updated:', newUser);
+    }
   }
 
   // File Upload Methods
