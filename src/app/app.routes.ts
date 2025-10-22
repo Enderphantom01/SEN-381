@@ -28,31 +28,38 @@ export const routes: Routes = [
   },
   { 
     path: 'courses', 
-    loadComponent: () => import('./pages/courses/courses.component').then(m => m.CoursesComponent)
+    loadComponent: () => import('./pages/courses/courses.component').then(m => m.CoursesComponent),
+    canActivate: [authGuard]
   },
   { 
-    path: 'course', 
-    loadComponent: () => import('./pages/courses/course/course.component').then(m => m.CourseComponent)
+    path: 'course/:id', 
+    loadComponent: () => import('./pages/course/course.component').then(m => m.CourseComponent),
+    canActivate: [authGuard]
   },
   { 
     path: 'topics', 
-    loadComponent: () => import('./pages/topics/topics.component').then(m => m.TopicsComponent)
+    loadComponent: () => import('./pages/topics/topics.component').then(m => m.TopicsComponent),
+    canActivate: [authGuard]
   },
   { 
     path: 'forum', 
-    loadComponent: () => import('./pages/forum/forum.component').then(m => m.ForumComponent)
+    loadComponent: () => import('./pages/forum/forum.component').then(m => m.ForumComponent),
+    canActivate: [authGuard]
   },
   { 
     path: 'profile', 
-    loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent)
+    loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent),
+    canActivate: [authGuard]
   },
   { 
     path: 'settings', 
-    loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent)
+    loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent),
+    canActivate: [authGuard]
   },
-    { 
+  { 
     path: 'notifications', 
     loadComponent: () => import('./pages/notifications/notifications.component').then(m => m.NotificationsComponent),
+    canActivate: [authGuard]
   },
   { path: '**', redirectTo: '/login' } // Fallback route
 ];

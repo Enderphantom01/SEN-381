@@ -35,9 +35,15 @@ export interface ApiResponse {
 
 export interface Course {
   _id?: string;
+  code: string;
   name: string;
   image: string;
   description?: string;
+  lecturer: {
+    name: string;
+    avatarUrl: string;
+  };
+  status: 'Active' | 'Inactive';
   isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -47,12 +53,34 @@ export interface Course {
 export interface Module {
   _id?: string;
   courseId: string;
-  name: string;
+  title: string;
   description?: string;
   order?: number;
   isActive?: boolean;
   createdAt?: string;
-  contentItems?: ContentItem[];
+  updatedAt?: string;
+  contentItems?: CourseContent[];
+}
+
+export interface CourseContent {
+  _id?: string;
+  courseId: string;
+  moduleId: string;
+  title: string;
+  content: string;
+  contentType: 'text' | 'upload';
+  files?: {
+    fileName: string;
+    fileUrl: string;
+    fileSize: number;
+    uploadedAt: string;
+    uploadedBy: string;
+  }[];
+  order?: number;
+  isActive?: boolean;
+  createdBy: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ContentItem {
@@ -372,20 +400,52 @@ export class ApiService {
     return this.http.put<Course>(`${this.baseUrl}/courses/${id}`, courseData, { headers: this.getHeaders() });
   }
 
-  // Module Methods
+  // Module Management Methods
+  createModule(courseId: string, moduleData: Partial<Module>): Observable<Module> {
+    return this.http.post<Module>(`${this.baseUrl}/courses/${courseId}/modules`, moduleData, { headers: this.getHeaders() });
+  }
+
+  updateModule(moduleId: string, moduleData: Partial<Module>): Observable<Module> {
+    return this.http.put<Module>(`${this.baseUrl}/courses/modules/${moduleId}`, moduleData, { headers: this.getHeaders() });
+  }
+
+  // Content Management Methods
+  createContent(moduleId: string, contentData: Partial<CourseContent>): Observable<CourseContent> {
+    return this.http.post<CourseContent>(`${this.baseUrl}/courses/modules/${moduleId}/content`, contentData, { headers: this.getHeaders() });
+  }
+
+  updateContent(contentId: string, contentData: Partial<CourseContent>): Observable<CourseContent> {
+    return this.http.put<CourseContent>(`${this.baseUrl}/courses/content/${contentId}`, contentData, { headers: this.getHeaders() });
+  }
+
+  // File Upload Methods
+  uploadFile(contentId: string, file: File, uploadedBy: string): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('uploadedBy', uploadedBy);
+
+    return this.http.post<any>(`${this.baseUrl}/content/upload/${contentId}`, formData, {
+      headers: this.getHeadersForUpload()
+    });
+  }
+
+  addFileToContent(contentId: string, fileData: any): Observable<CourseContent> {
+    return this.http.post<CourseContent>(`${this.baseUrl}/courses/content/${contentId}/files`, fileData, { 
+      headers: this.getHeaders() 
+    });
+  }
+
+  removeFileFromContent(contentId: string, fileIndex: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/content/files/${contentId}/${fileIndex}`, { 
+      headers: this.getHeaders() 
+    });
+  }
+
+  // Legacy Content Methods (keep for compatibility)
   getModules(courseId: string): Observable<Module[]> {
     return this.http.get<Module[]>(`${this.baseUrl}/modules/course/${courseId}`, { headers: this.getHeaders() });
   }
 
-  createModule(moduleData: Partial<Module>): Observable<Module> {
-    return this.http.post<Module>(`${this.baseUrl}/modules`, moduleData, { headers: this.getHeaders() });
-  }
-
-  updateModule(id: string, moduleData: Partial<Module>): Observable<Module> {
-    return this.http.put<Module>(`${this.baseUrl}/modules/${id}`, moduleData, { headers: this.getHeaders() });
-  }
-
-  // Content Methods
   getContentItems(moduleId: string): Observable<ContentItem[]> {
     return this.http.get<ContentItem[]>(`${this.baseUrl}/content/module/${moduleId}`, { headers: this.getHeaders() });
   }
@@ -534,6 +594,49 @@ export class ApiService {
     return this.http.put(`${this.baseUrl}/admin/tutors/${tutorId}/approve`, approvalData, { headers: this.getHeaders() });
   }
 
+  // AI Methods
+  getGeminiApiKey(): Observable<{ apiKey: string; status: string }> {
+    return this.http.get<{ apiKey: string; status: string }>(
+        `${this.baseUrl}/ai/gemini-key`, 
+        { headers: this.getHeaders() }
+    );
+  }
+
+  // AI-specific message method
+  sendAIMessage(messageData: {
+    senderId: string;
+    text: string;
+    conversationId: string;
+  }): void {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('send_ai_message', messageData);
+    } else {
+      console.error('❌ Socket not connected for AI message');
+      // Fallback: just log the AI message locally
+      console.log('🤖 AI Message (offline):', messageData.text);
+    }
+  }
+
+  sendAIMessageViaAPI(messageData: {
+    text: string;
+    attachment?: { base64: string; type: string };
+    conversationId?: string;
+  }): Observable<any> {
+    return this.http.post(
+      `${this.baseUrl}/ai/chat`,
+      messageData,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  searchUsers(searchQuery: string): Observable<any> {
+    const params = { search: searchQuery };
+    return this.http.get(`${this.baseUrl}/users`, { 
+      headers: this.getHeaders(), 
+      params 
+    });
+  }
+
   // Session management
   private clearSession() {
     this.sessionId = null;
@@ -559,39 +662,6 @@ export class ApiService {
   isLoggedIn(): boolean {
     return !!this.sessionId;
   }
-  // AI Methods
-  getGeminiApiKey(): Observable<{ apiKey: string; status: string }> {
-    return this.http.get<{ apiKey: string; status: string }>(
-        `${this.baseUrl}/ai/gemini-key`, 
-        { headers: this.getHeaders() }
-    );
-  }
-  // AI-specific message method
-sendAIMessage(messageData: {
-  senderId: string;
-  text: string;
-  conversationId: string;
-}): void {
-  if (this.socket && this.socket.connected) {
-    this.socket.emit('send_ai_message', messageData);
-  } else {
-    console.error('❌ Socket not connected for AI message');
-    // Fallback: just log the AI message locally
-    console.log('🤖 AI Message (offline):', messageData.text);
-  }
-}
-
-sendAIMessageViaAPI(messageData: {
-  text: string;
-  attachment?: { base64: string; type: string };
-  conversationId?: string;
-}): Observable<any> {
-  return this.http.post(
-    `${this.baseUrl}/ai/chat`,
-    messageData,
-    { headers: this.getHeaders() }
-  );
-}
 
   // Test connection method
   testConnection(): Observable<any> {
@@ -615,13 +685,4 @@ sendAIMessageViaAPI(messageData: {
   getSocket(): Socket | null {
     return this.socket;
   }
-  searchUsers(searchQuery: string): Observable<any> {
-  const params = { search: searchQuery };
-  return this.http.get(`${this.baseUrl}/users`, { 
-    headers: this.getHeaders(), 
-    params 
-  });
-  
-  
-}
 }

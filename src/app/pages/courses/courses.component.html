@@ -42,7 +42,6 @@
     </div>
   </aside>
 
-  <!-- Rest of the courses.component.html content remains the same -->
   <!-- Main Content -->
   <div class="flex-grow flex flex-col overflow-hidden">
     <!-- Header Banner -->
@@ -80,8 +79,21 @@
         </div>
         <div class="bg-[#e0e1e2] rounded-lg rounded-tl-none p-6 text-slate-800 flex-grow">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            @for(course of courses(); track course.id) {
-              <div class="bg-slate-300 rounded-lg shadow-md flex h-36 border border-slate-400/50">
+            @if (loading()) {
+              <div class="col-span-2 text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500"></div>
+                <p class="mt-2 text-slate-600">Loading courses...</p>
+              </div>
+            }
+            @if (error()) {
+              <div class="col-span-2 text-center py-4">
+                <p class="text-red-600">{{ error() }}</p>
+                <p class="text-sm text-slate-600 mt-1">Showing demo data</p>
+              </div>
+            }
+            @for(course of courses(); track course._id) {
+              <div class="bg-slate-300 rounded-lg shadow-md flex h-36 border border-slate-400/50 cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200" 
+                   (click)="navigateToCourse(course._id!)">
                 <div class="w-1/2 p-4 flex flex-col">
                   <h3 class="font-bold text-xl">{{ course.code }}</h3>
                   <p class="font-semibold text-sm" [class.text-green-600]="course.status === 'Active'" [class.text-red-600]="course.status === 'Inactive'">[{{ course.status }}]</p>
@@ -91,13 +103,13 @@
                       <span class="text-sm font-medium">{{ course.lecturer.name }}</span>
                     </div>
                      @if (course.status === 'Inactive') {
-                      <button class="text-slate-600 hover:text-red-500 transition-colors">
+                      <button class="text-slate-600 hover:text-red-500 transition-colors" (click)="$event.stopPropagation()">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                       </button>
                     }
                   </div>
                 </div>
-                <div class="w-1/2 bg-cover bg-center rounded-r-lg" [style.background-image]="'url(' + course.imageUrl + ')'"></div>
+                <div class="w-1/2 bg-cover bg-center rounded-r-lg" [style.background-image]="'url(' + course.image + ')'"></div>
               </div>
             }
           </div>
