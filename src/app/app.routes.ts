@@ -50,5 +50,9 @@ export const routes: Routes = [
     path: 'settings', 
     loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent)
   },
+    { 
+    path: 'notifications', 
+    loadComponent: () => import('./pages/notifications/notifications.component').then(m => m.NotificationsComponent),
+  },
   { path: '**', redirectTo: '/login' } // Fallback route
 ];

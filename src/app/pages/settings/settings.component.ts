@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 interface SettingsState {
   notificationSound: boolean;
@@ -9,10 +11,14 @@ interface SettingsState {
 
 @Component({
   selector: 'app-settings',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './settings.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsComponent {
+  private router = inject(Router);
+
   settings = signal<SettingsState>({
     notificationSound: true,
     doNotDisturb: false,
@@ -25,5 +31,8 @@ export class SettingsComponent {
       ...currentSettings,
       [key]: !currentSettings[key],
     }));
+  }
+  navigateToHome(): void {
+  this.router.navigate(['/home']);
   }
 }

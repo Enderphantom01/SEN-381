@@ -1,9 +1,10 @@
 // src/app/services/api.service.ts
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { isPlatformBrowser } from '@angular/common'; // Add this import
+import { isPlatformBrowser } from '@angular/common';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { io, Socket } from 'socket.io-client';
 
 export interface User {
   userId: string;
@@ -71,25 +72,119 @@ export interface ContentItem {
   updatedAt?: string;
 }
 
+// Socket Message Interfaces
+export interface SocketMessage {
+  _id?: string;
+  conversationId: string;
+  senderId: string;
+  receiverId: string;
+  text: string;
+  timestamp: Date;
+  status: 'sent' | 'received' | 'read';
+  file?: {
+    name: string;
+    type: string;
+    url?: string;
+  };
+}
+
+export interface TypingEvent {
+  senderId: string;
+  isTyping: boolean;
+}
+
+export interface UserStatusEvent {
+  userId: string;
+  status: 'online' | 'away' | 'offline';
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
   private baseUrl = 'http://localhost:3000/api';
+  private socketUrl = 'http://localhost:3000';
   private sessionId: string | null = null;
   private currentUser = new BehaviorSubject<User | null>(null);
+  private socket: Socket | null = null;
   private isBrowser: boolean;
 
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
 
+  // Socket observables
+  private newMessageSubject = new BehaviorSubject<SocketMessage | null>(null);
+  public newMessage$ = this.newMessageSubject.asObservable();
+
+  private typingSubject = new BehaviorSubject<TypingEvent | null>(null);
+  public typing$ = this.typingSubject.asObservable();
+
+  private userStatusSubject = new BehaviorSubject<UserStatusEvent | null>(null);
+  public userStatus$ = this.userStatusSubject.asObservable();
+
   constructor() {
     this.isBrowser = isPlatformBrowser(this.platformId);
     this.loadSession();
+    this.initializeSocket();
+  }
+
+  private initializeSocket() {
+    if (!this.isBrowser) return;
+
+    this.socket = io(this.socketUrl, {
+      transports: ['websocket', 'polling']
+    });
+
+    this.socket.on('connect', () => {
+      console.log('🔌 Connected to WebSocket server');
+      
+      // Join with user ID if logged in
+      const user = this.currentUser.value;
+      if (user && this.sessionId) {
+        this.socket?.emit('user_connected', user.userId);
+        this.sendOfflineMessages();
+      }
+    });
+
+    this.socket.on('disconnect', () => {
+      console.log('🔌 Disconnected from WebSocket server');
+    });
+
+    // Listen for new messages
+    this.socket.on('new_message', (message: SocketMessage) => {
+      console.log('📨 New message received:', message);
+      this.newMessageSubject.next(message);
+    });
+
+    // Listen for message sent confirmation
+    this.socket.on('message_sent', (message: SocketMessage) => {
+      console.log('✅ Message sent confirmation:', message);
+      this.newMessageSubject.next(message);
+    });
+
+    // Listen for typing events
+    this.socket.on('user_typing', (typingEvent: TypingEvent) => {
+      this.typingSubject.next(typingEvent);
+    });
+
+    // Listen for user status changes
+    this.socket.on('user_status_changed', (statusEvent: UserStatusEvent) => {
+      this.userStatusSubject.next(statusEvent);
+    });
+
+    // Listen for messages read
+    this.socket.on('messages_read', (data: any) => {
+      console.log('📖 Messages read by:', data);
+      // Handle read receipts if needed
+    });
+
+    // Listen for errors
+    this.socket.on('message_error', (error: any) => {
+      console.error('❌ Socket error:', error);
+    });
   }
 
   private loadSession() {
-    // Only try to access localStorage if we're in the browser
     if (this.isBrowser) {
       const savedSession = localStorage.getItem('sessionId');
       const savedUser = localStorage.getItem('currentUser');
@@ -121,13 +216,76 @@ export class ApiService {
 
   private getHeadersForUpload(): HttpHeaders {
     let headers = new HttpHeaders();
-    // Don't set Content-Type for multipart/form-data - let browser set it with boundary
 
     if (this.sessionId) {
       headers = headers.set('Authorization', `Bearer ${this.sessionId}`);
     }
 
     return headers;
+  }
+
+  // Socket Methods
+  sendMessage(messageData: {
+    senderId: string;
+    receiverId: string;
+    text: string;
+    conversationId: string;
+  }): void {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('send_message', messageData);
+    } else {
+      console.error('❌ Socket not connected');
+      // Fallback: store message locally and try to send when reconnected
+      this.storeOfflineMessage(messageData);
+    }
+  }
+
+  startTyping(data: { senderId: string; receiverId: string }): void {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('typing_start', data);
+    }
+  }
+
+  stopTyping(data: { senderId: string; receiverId: string }): void {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('typing_stop', data);
+    }
+  }
+
+  markAsRead(data: {
+    conversationId: string;
+    userId: string;
+    senderId: string;
+  }): void {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('mark_as_read', data);
+    }
+  }
+
+  private storeOfflineMessage(messageData: any): void {
+    // Store message in localStorage for sending when reconnected
+    if (this.isBrowser) {
+      const offlineMessages = JSON.parse(localStorage.getItem('offlineMessages') || '[]');
+      offlineMessages.push({
+        ...messageData,
+        timestamp: new Date(),
+        offline: true
+      });
+      localStorage.setItem('offlineMessages', JSON.stringify(offlineMessages));
+    }
+  }
+
+  private sendOfflineMessages(): void {
+    if (this.isBrowser && this.socket && this.socket.connected) {
+      const offlineMessages = JSON.parse(localStorage.getItem('offlineMessages') || '[]');
+      if (offlineMessages.length > 0) {
+        offlineMessages.forEach((message: any) => {
+          this.socket?.emit('send_message', message);
+        });
+        localStorage.removeItem('offlineMessages');
+        console.log('📤 Sent offline messages');
+      }
+    }
   }
 
   // Auth Methods
@@ -137,10 +295,14 @@ export class ApiService {
         tap(response => {
           this.sessionId = response.sessionId;
           this.currentUser.next(response.user);
-          // Only save to localStorage if we're in the browser
           if (this.isBrowser) {
             localStorage.setItem('sessionId', response.sessionId);
             localStorage.setItem('currentUser', JSON.stringify(response.user));
+            
+            // Join socket room with user ID
+            if (this.socket) {
+              this.socket.emit('user_connected', response.user.userId);
+            }
           }
         })
       );
@@ -155,6 +317,11 @@ export class ApiService {
           if (this.isBrowser) {
             localStorage.setItem('sessionId', response.sessionId);
             localStorage.setItem('currentUser', JSON.stringify(response.user));
+            
+            // Join socket room with user ID
+            if (this.socket) {
+              this.socket.emit('user_connected', response.user.userId);
+            }
           }
         })
       );
@@ -329,10 +496,6 @@ export class ApiService {
     return this.http.post(`${this.baseUrl}/messages/conversations`, conversationData, { headers: this.getHeaders() });
   }
 
-  sendMessage(messageData: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/messages/send`, messageData, { headers: this.getHeaders() });
-  }
-
   // Notification Methods
   getNotifications(): Observable<any> {
     return this.http.get(`${this.baseUrl}/notifications`, { headers: this.getHeaders() });
@@ -370,6 +533,10 @@ export class ApiService {
     if (this.isBrowser) {
       localStorage.removeItem('sessionId');
       localStorage.removeItem('currentUser');
+      localStorage.removeItem('offlineMessages');
+    }
+    if (this.socket) {
+      this.socket.disconnect();
     }
   }
 
@@ -384,6 +551,39 @@ export class ApiService {
   isLoggedIn(): boolean {
     return !!this.sessionId;
   }
+  // AI Methods
+  getGeminiApiKey(): Observable<{ apiKey: string; status: string }> {
+    return this.http.get<{ apiKey: string; status: string }>(
+        `${this.baseUrl}/ai/gemini-key`, 
+        { headers: this.getHeaders() }
+    );
+  }
+  // AI-specific message method
+sendAIMessage(messageData: {
+  senderId: string;
+  text: string;
+  conversationId: string;
+}): void {
+  if (this.socket && this.socket.connected) {
+    this.socket.emit('send_ai_message', messageData);
+  } else {
+    console.error('❌ Socket not connected for AI message');
+    // Fallback: just log the AI message locally
+    console.log('🤖 AI Message (offline):', messageData.text);
+  }
+}
+
+sendAIMessageViaAPI(messageData: {
+  text: string;
+  attachment?: { base64: string; type: string };
+  conversationId?: string;
+}): Observable<any> {
+  return this.http.post(
+    `${this.baseUrl}/ai/chat`,
+    messageData,
+    { headers: this.getHeaders() }
+  );
+}
 
   // Test connection method
   testConnection(): Observable<any> {
@@ -397,4 +597,23 @@ export class ApiService {
     }
     return `http://localhost:3000${filePath}`;
   }
+
+  // Socket status
+  isSocketConnected(): boolean {
+    return this.socket?.connected || false;
+  }
+
+  // Get socket instance (for advanced usage)
+  getSocket(): Socket | null {
+    return this.socket;
+  }
+  searchUsers(searchQuery: string): Observable<any> {
+  const params = { search: searchQuery };
+  return this.http.get(`${this.baseUrl}/users`, { 
+    headers: this.getHeaders(), 
+    params 
+  });
+  
+  
+}
 }
