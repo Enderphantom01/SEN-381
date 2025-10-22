@@ -1,0 +1,130 @@
+<div class="flex h-screen bg-[#1E1E1E] text-white">
+  <!-- Sidebar -->
+  <div class="w-64 bg-[#2C2F33] p-5 flex flex-col justify-between">
+    <div>
+      <h2 class="text-xl font-semibold mb-5">Admin Panel</h2>
+      <nav class="flex flex-col space-y-2">
+        @for (link of sidebarLinks; track link) {
+          <button
+            (click)="changeSection(link.section)"
+            [ngClass]="{
+              'bg-[#495057] text-white': activeSection === link.section,
+              'text-[#ADB5BD] hover:bg-[#495057]/50': activeSection !== link.section
+            }"
+            class="text-left px-3 py-2 rounded-md w-full transition"
+          >
+            {{ link.label }}
+          </button>
+        }
+      </nav>
+    </div>
+    <a (click)="onLogout()" class="flex items-center space-x-3 p-3 rounded-lg text-[#ADB5BD] hover:bg-[#495057]/50 cursor-pointer">
+      <span>Logout</span>
+    </a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 bg-[#F8F9FA] text-black p-6 overflow-y-auto">
+    <!-- Dashboard Section -->
+    @if (activeSection === 'dashboard') {
+      <div>
+        <h2 class="text-2xl font-semibold mb-4">Dashboard Overview</h2>
+        <button (click)="loadDashboardAndCourses()" class="bg-white border border-gray-300 text-black px-4 py-2 rounded-md hover:bg-gray-100">Refresh</button>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mt-6">
+          <div class="bg-white shadow rounded-lg p-5">
+            <h3 class="text-gray-500">Total Users</h3>
+            <p class="text-3xl font-bold">{{ dashboardData.totalUsers || 0 }}</p>
+          </div>
+          <div class="bg-white shadow rounded-lg p-5">
+            <h3 class="text-gray-500">Total Courses</h3>
+            <p class="text-3xl font-bold">{{ dashboardData.totalCourses || 0 }}</p>
+          </div>
+          <div class="bg-white shadow rounded-lg p-5">
+            <h3 class="text-gray-500">Forum Posts</h3>
+            <p class="text-3xl font-bold">{{ dashboardData.totalPosts || 0 }}</p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Users Section -->
+    @if (activeSection === 'users') {
+      <div>
+        <h2 class="text-2xl font-semibold mb-4">Manage Users</h2>
+        <table class="w-full text-left border-collapse bg-white">
+          <thead class="bg-gray-100 border-b">
+            <tr>
+              <th class="p-2">Name</th>
+              <th class="p-2">Email</th>
+              <th class="p-2">Role</th>
+              <th class="p-2">Status</th>
+              <th class="p-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users; track user.userId) {
+              <tr class="border-b">
+                <td class="p-2">{{ user.name }}</td>
+                <td class="p-2">{{ user.email }}</td>
+                <td class="p-2">{{ user.role }}</td>
+                <td class="p-2">{{ user.status }}</td>
+                <td class="p-2 flex gap-2">
+                  <button (click)="updateUserStatus(user.userId, 'active')" class="text-green-600 hover:underline">Activate</button>
+                  <button (click)="updateUserStatus(user.userId, 'inactive')" class="text-yellow-600 hover:underline">Deactivate</button>
+                  <button (click)="onEditUser()" class="text-blue-600 hover:underline">Edit</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Forum Section -->
+    @if (activeSection === 'forum') {
+      <div>
+        <h2 class="text-2xl font-semibold mb-4">Manage Forum Posts</h2>
+        <table class="w-full text-left border-collapse bg-white">
+          <thead class="bg-gray-100 border-b">
+            <tr>
+              <th class="p-2">Author</th>
+              <th class="p-2">Content</th>
+              <th class="p-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (post of posts; track post._id) {
+              <tr class="border-b">
+                <td class="p-2">{{ post.author?.name || 'Unknown' }}</td>
+                <td class="p-2">{{ (post.content ?? post.text) | slice:0:120 }}...</td>
+                <td class="p-2">
+                  <button (click)="deletePost(post._id)" class="text-red-600 hover:underline">Delete</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Subjects Section -->
+    @if (activeSection === 'subjects') {
+      <div>
+        <h2 class="text-2xl font-semibold mb-4">Manage Subjects</h2>
+        <ul class="list-disc ml-5">
+          @for (course of courses; track course._id) {
+            <li>{{ course.name }}</li>
+          }
+        </ul>
+      </div>
+    }
+
+    <!-- Analytics Section -->
+    @if (activeSection === 'analytics') {
+      <div>
+        <h2 class="text-2xl font-semibold mb-4">Platform Analytics</h2>
+        <p class="text-gray-700">Analytics and reporting features will go here.</p>
+      </div>
+    }
+  </div>
+</div>

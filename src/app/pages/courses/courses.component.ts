@@ -28,6 +28,18 @@ export class CoursesComponent implements OnInit {
     { id: 5, title: 'International Global Minor Enrichment Programme', author: 'Francois Venter', date: '14 July 2025', time: '3:09 PM' },
   ]);
 
+  // Color palette for lecturer avatars
+  private avatarColors = [
+    'bg-gradient-to-br from-blue-500 to-blue-600',
+    'bg-gradient-to-br from-green-500 to-green-600',
+    'bg-gradient-to-br from-purple-500 to-purple-600',
+    'bg-gradient-to-br from-red-500 to-red-600',
+    'bg-gradient-to-br from-yellow-500 to-yellow-600',
+    'bg-gradient-to-br from-indigo-500 to-indigo-600',
+    'bg-gradient-to-br from-pink-500 to-pink-600',
+    'bg-gradient-to-br from-teal-500 to-teal-600',
+  ];
+
   ngOnInit() {
     // Get current user info from API service
     const user = this.apiService.getCurrentUserValue();
@@ -62,25 +74,25 @@ export class CoursesComponent implements OnInit {
       {
         _id: '1',
         code: 'DBD 381',
-        name: 'Database Design',
+        name: 'Database Design and Implementation',
         status: 'Active',
-        lecturer: { name: 'Naledi Msiya', avatarUrl: 'https://picsum.photos/seed/naledi/32/32' },
+        lecturer: { name: 'Naledi Msiya', avatarUrl: '' },
         image: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2070&auto=format&fit=crop'
       },
       {
         _id: '2',
         code: 'INL381',
-        name: 'Information Systems',
+        name: 'Information Systems Management',
         status: 'Active',
-        lecturer: { name: 'Dino Giovanni', avatarUrl: 'https://picsum.photos/seed/dino/32/32' },
+        lecturer: { name: 'Dino Giovanni', avatarUrl: '' },
         image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop'
       },
       {
         _id: '3',
         code: 'PRJ381',
-        name: 'Project Management',
+        name: 'Advanced Project Management',
         status: 'Active',
-        lecturer: { name: 'Ane Strydom', avatarUrl: 'https://picsum.photos/seed/ane/32/32' },
+        lecturer: { name: 'Ane Strydom', avatarUrl: '' },
         image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop'
       },
       {
@@ -88,16 +100,24 @@ export class CoursesComponent implements OnInit {
         code: 'DBD 281',
         name: 'Database Fundamentals',
         status: 'Inactive',
-        lecturer: { name: 'Simba Zengeni', avatarUrl: 'https://picsum.photos/seed/simba/32/32' },
+        lecturer: { name: 'Simba Zengeni', avatarUrl: '' },
         image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2070&auto=format&fit=crop'
       },
       {
         _id: '5',
         code: 'SEN381',
-        name: 'Software Engineering',
+        name: 'Software Engineering Principles',
         status: 'Active',
-        lecturer: { name: 'Abey Kelli', avatarUrl: 'https://picsum.photos/seed/abey/32/32' },
+        lecturer: { name: 'Abey Kelli', avatarUrl: '' },
         image: 'https://images.unsplash.com/photo-1580927752452-89d86da3fa0a?q=80&w=2070&auto=format&fit=crop'
+      },
+      {
+        _id: '6',
+        code: 'WEB381',
+        name: 'Web Development Technologies',
+        status: 'Active',
+        lecturer: { name: 'Sarah Johnson', avatarUrl: '' },
+        image: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?q=80&w=2070&auto=format&fit=crop'
       },
     ];
     
@@ -110,6 +130,36 @@ export class CoursesComponent implements OnInit {
   getUserDisplayName(): string {
     const user = this.currentUser();
     return user?.name || 'Student';
+  }
+
+  /**
+   * Get lecturer initial for avatar
+   */
+  getLecturerInitial(lecturerName: string): string {
+    return lecturerName ? lecturerName.charAt(0).toUpperCase() : '?';
+  }
+
+  /**
+   * Get consistent color for lecturer based on name
+   */
+  getLecturerColor(lecturerName: string): string {
+    if (!lecturerName) return this.avatarColors[0];
+    
+    // Simple hash function to get consistent color for each lecturer
+    let hash = 0;
+    for (let i = 0; i < lecturerName.length; i++) {
+      hash = lecturerName.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    const index = Math.abs(hash) % this.avatarColors.length;
+    return this.avatarColors[index];
+  }
+
+  /**
+   * Generate random module count for demo purposes
+   */
+  getRandomModuleCount(): number {
+    return Math.floor(Math.random() * 8) + 3; // 3-10 modules
   }
 
   /**
