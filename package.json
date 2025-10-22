@@ -5,6 +5,8 @@
   "scripts": {
     "start": "node main.js",
     "dev": "nodemon main.js",
+    "seed:forum": "node backend/scripts/seedForumData.js",
+    "clear:forum": "node backend/scripts/clearForumData.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Bad Boys Binary Bytes and Company",

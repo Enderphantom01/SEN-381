@@ -10,6 +10,25 @@ const { sendNotification } = require('./notifications.js');
 
 const router = express.Router();
 
+const buildAvatarUrl = (name = 'User') => {
+    const safeName = encodeURIComponent(name || 'User');
+    return `https://ui-avatars.com/api/?name=${safeName}&background=0F172A&color=ffffff&size=64`;
+};
+
+const mapRecentReactions = (users = []) =>
+    users.map((user) => ({
+        name: user.name || 'User',
+        avatarUrl: buildAvatarUrl(user.name),
+    }));
+
+const unwrapId = (value) => (value && value._id ? value._id : value);
+
+const stripObjectId = (array = [], objectId) =>
+    array.filter((item) => {
+        const id = unwrapId(item);
+        return !(id && objectId && id.equals && id.equals(objectId));
+    });
+
 /**
  * GET /api/forum/posts
  * Get all forum posts with optional filtering
@@ -66,6 +85,8 @@ router.get('/posts', optionalAuth, async (req, res) => {
         const posts = await ForumPost.find(query)
             .populate('authorId', 'userId name email role')
             .populate('topicId', 'topicId title')
+            .populate('likedBy', 'name userId')
+            .populate('dislikedBy', 'name userId')
             .sort(sort)
             .skip(skip)
             .limit(parseInt(limit));
@@ -74,6 +95,8 @@ router.get('/posts', optionalAuth, async (req, res) => {
         const totalPosts = await ForumPost.countDocuments(query);
 
         // Get comment counts and user interaction status
+        const currentUserId = req.user?.userId ?? null;
+
         const postsWithDetails = await Promise.all(
             posts.map(async (post) => {
                 const commentCount = await ForumComment.countDocuments({ 
@@ -81,6 +104,14 @@ router.get('/posts', optionalAuth, async (req, res) => {
                     isActive: true 
                 });
 
+                const likedUsers = Array.isArray(post.likedBy) ? post.likedBy : [];
+                const dislikedUsers = Array.isArray(post.dislikedBy) ? post.dislikedBy : [];
+                const userLiked = currentUserId
+                    ? likedUsers.some((likedUser) => likedUser.userId === currentUserId)
+                    : false;
+                const userDisliked = currentUserId
+                    ? dislikedUsers.some((dislikedUser) => dislikedUser.userId === currentUserId)
+                    : false;
                 return {
                     postId: post.postId,
                     title: post.title,
@@ -90,12 +121,13 @@ router.get('/posts', optionalAuth, async (req, res) => {
                     topicId: post.topicId.topicId,
                     topicTitle: post.topicId.title,
                     isAnonymous: post.isAnonymous,
-                    likes: post.likes,
-                    dislikes: post.dislikes,
+                    likes: likedUsers.length,
+                    dislikes: dislikedUsers.length,
                     commentCount: commentCount,
                     createdAt: post.createdAt,
-                    userLiked: false, // Would be determined by user's interaction
-                    userDisliked: false // Would be determined by user's interaction
+                    recentReactions: mapRecentReactions(likedUsers),
+                    userLiked,
+                    userDisliked
                 };
             })
         );
@@ -130,7 +162,9 @@ router.get('/posts/:postId', optionalAuth, async (req, res) => {
 
         const post = await ForumPost.findOne({ postId })
             .populate('authorId', 'userId name email role')
-            .populate('topicId', 'topicId title subjectId');
+            .populate('topicId', 'topicId title subjectId')
+            .populate('likedBy', 'name userId')
+            .populate('dislikedBy', 'name userId');
 
         if (!post) {
             return res.status(404).json({
@@ -160,6 +194,7 @@ router.get('/posts/:postId', optionalAuth, async (req, res) => {
                     .sort({ createdAt: 1 });
 
                 return {
+                    id: comment._id,
                     commentId: comment.commentId,
                     content: comment.content,
                     authorName: comment.authorId.name,
@@ -169,6 +204,7 @@ router.get('/posts/:postId', optionalAuth, async (req, res) => {
                     dislikes: comment.dislikes,
                     createdAt: comment.createdAt,
                     replies: replies.map(reply => ({
+                        id: reply._id,
                         commentId: reply.commentId,
                         content: reply.content,
                         authorName: reply.authorId.name,
@@ -182,6 +218,16 @@ router.get('/posts/:postId', optionalAuth, async (req, res) => {
             })
         );
 
+        const likedUsers = Array.isArray(post.likedBy) ? post.likedBy : [];
+        const dislikedUsers = Array.isArray(post.dislikedBy) ? post.dislikedBy : [];
+        const currentUserId = req.user?.userId ?? null;
+        const userLiked = currentUserId
+            ? likedUsers.some((likedUser) => likedUser.userId === currentUserId)
+            : false;
+        const userDisliked = currentUserId
+            ? dislikedUsers.some((dislikedUser) => dislikedUser.userId === currentUserId)
+            : false;
+
         const postWithDetails = {
             postId: post.postId,
             title: post.title,
@@ -191,10 +237,13 @@ router.get('/posts/:postId', optionalAuth, async (req, res) => {
             topicId: post.topicId.topicId,
             topicTitle: post.topicId.title,
             isAnonymous: post.isAnonymous,
-            likes: post.likes,
-            dislikes: post.dislikes,
+            likes: likedUsers.length,
+            dislikes: dislikedUsers.length,
             createdAt: post.createdAt,
-            comments: commentsWithReplies
+            comments: commentsWithReplies,
+            recentReactions: mapRecentReactions(likedUsers),
+            userLiked,
+            userDisliked
         };
 
         res.status(200).json({
@@ -397,7 +446,9 @@ router.post('/posts/:postId/like', authenticate(), async (req, res) => {
     try {
         const { postId } = req.params;
 
-        const post = await ForumPost.findOne({ postId });
+        const post = await ForumPost.findOne({ postId })
+            .populate('likedBy', 'name userId')
+            .populate('dislikedBy', 'name userId');
         if (!post) {
             return res.status(404).json({
                 error: 'Post not found',
@@ -405,15 +456,47 @@ router.post('/posts/:postId/like', authenticate(), async (req, res) => {
             });
         }
 
-        // In a real implementation, you'd track which users have liked/disliked
-        // For now, we'll just increment the count
-        post.likes += 1;
+        const user = await User.findOne({ userId: req.user.userId });
+        if (!user) {
+            return res.status(404).json({
+                error: 'User not found',
+                message: 'Unable to find authenticated user'
+            });
+        }
+
+        const userId = user._id;
+        post.likedBy = Array.isArray(post.likedBy) ? post.likedBy : [];
+        post.dislikedBy = Array.isArray(post.dislikedBy) ? post.dislikedBy : [];
+
+        const alreadyLiked = post.likedBy.some((likedUser) => {
+            const id = unwrapId(likedUser);
+            return id && id.equals && id.equals(userId);
+        });
+
+        if (alreadyLiked) {
+            post.likes = post.likedBy.length;
+            post.dislikes = post.dislikedBy.length;
+            return res.status(200).json({
+                message: 'Post already liked',
+                likes: post.likes,
+                dislikes: post.dislikes,
+                recentReactions: mapRecentReactions(post.likedBy)
+            });
+        }
+
+        post.likedBy = [...stripObjectId(post.likedBy, userId), userId];
+        post.dislikedBy = stripObjectId(post.dislikedBy, userId);
+        post.likes = post.likedBy.length;
+        post.dislikes = post.dislikedBy.length;
+
         await post.save();
+        await post.populate('likedBy', 'name userId');
 
         res.status(200).json({
             message: 'Post liked successfully',
             likes: post.likes,
-            dislikes: post.dislikes
+            dislikes: post.dislikes,
+            recentReactions: mapRecentReactions(post.likedBy)
         });
 
     } catch (error) {
@@ -433,7 +516,9 @@ router.post('/posts/:postId/dislike', authenticate(), async (req, res) => {
     try {
         const { postId } = req.params;
 
-        const post = await ForumPost.findOne({ postId });
+        const post = await ForumPost.findOne({ postId })
+            .populate('likedBy', 'name userId')
+            .populate('dislikedBy', 'name userId');
         if (!post) {
             return res.status(404).json({
                 error: 'Post not found',
@@ -441,13 +526,47 @@ router.post('/posts/:postId/dislike', authenticate(), async (req, res) => {
             });
         }
 
-        post.dislikes += 1;
+        const user = await User.findOne({ userId: req.user.userId });
+        if (!user) {
+            return res.status(404).json({
+                error: 'User not found',
+                message: 'Unable to find authenticated user'
+            });
+        }
+
+        const userId = user._id;
+        post.likedBy = Array.isArray(post.likedBy) ? post.likedBy : [];
+        post.dislikedBy = Array.isArray(post.dislikedBy) ? post.dislikedBy : [];
+
+        const alreadyDisliked = post.dislikedBy.some((dislikedUser) => {
+            const id = unwrapId(dislikedUser);
+            return id && id.equals && id.equals(userId);
+        });
+
+        if (alreadyDisliked) {
+            post.likes = post.likedBy.length;
+            post.dislikes = post.dislikedBy.length;
+            return res.status(200).json({
+                message: 'Post already disliked',
+                likes: post.likes,
+                dislikes: post.dislikes,
+                recentReactions: mapRecentReactions(post.likedBy)
+            });
+        }
+
+        post.dislikedBy = [...stripObjectId(post.dislikedBy, userId), userId];
+        post.likedBy = stripObjectId(post.likedBy, userId);
+        post.likes = post.likedBy.length;
+        post.dislikes = post.dislikedBy.length;
+
         await post.save();
+        await post.populate('likedBy', 'name userId');
 
         res.status(200).json({
             message: 'Post disliked successfully',
             likes: post.likes,
-            dislikes: post.dislikes
+            dislikes: post.dislikes,
+            recentReactions: mapRecentReactions(post.likedBy)
         });
 
     } catch (error) {
@@ -469,6 +588,7 @@ router.get('/trending', optionalAuth, async (req, res) => {
         const trendingPosts = await ForumPost.find({ isActive: true })
             .populate('authorId', 'userId name email role')
             .populate('topicId', 'topicId title')
+            .populate('likedBy', 'name userId')
             .sort({ likes: -1, createdAt: -1 })
             .limit(5);
 
@@ -479,14 +599,16 @@ router.get('/trending', optionalAuth, async (req, res) => {
                     isActive: true 
                 });
 
+                const likedUsers = Array.isArray(post.likedBy) ? post.likedBy : [];
                 return {
                     postId: post.postId,
                     title: post.title,
                     authorName: post.isAnonymous ? 'Anonymous' : post.authorId.name,
-                    likes: post.likes,
+                    likes: likedUsers.length,
                     commentCount: commentCount,
                     createdAt: post.createdAt,
-                    topicTitle: post.topicId.title
+                    topicTitle: post.topicId.title,
+                    recentReactions: mapRecentReactions(likedUsers)
                 };
             })
         );

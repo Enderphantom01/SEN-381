@@ -37,6 +37,13 @@ const ForumPostSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    likedBy: {
+        type: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }],
+        default: []
+    },
     dislikes: {
         type: Number,
         default: 0
