@@ -44,6 +44,13 @@ interface CalendarDay {
   hasEvent: boolean;
 }
 
+interface Notification {
+  id: number;
+  title: string;
+  message: string;
+  read: boolean;
+}
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -54,6 +61,9 @@ interface CalendarDay {
 export class HomeComponent implements OnInit {
   private apiService = inject(ApiService);
   private router = inject(Router);
+
+  showNotificationsDropdown = signal(false);
+  showProfileDropdown = signal(false);
 
   // API call to get user's current course
   course = signal<Course>({
@@ -77,6 +87,13 @@ export class HomeComponent implements OnInit {
     title: 'Campus Announcement',
     content: `Attention students: The library will be extending its hours this week for midterm study sessions. Doors will remain open until 12:00 AM from Monday through Thursday. Free coffee and snacks will be provided in the lobby starting at 8:00 PM.\n\nPlease remember to bring your student ID for entry after 9:00 PM.`,
   });
+
+  // Sample notifications for the dropdown
+  notifications = signal<Notification[]>([
+    { id: 1, title: 'Campus Announcement', message: 'System Maintenance 19:00', read: false },
+    { id: 4, title: 'New Study Groups', message: 'Multiple new study groups have been added.', read: false },
+    { id: 2, title: 'Jane Jennifer', message: 'Our study session is still on for tomorrow.', read: true },
+  ]);
 
   // API call to get user's recent contacts
   chats = signal<ChatContact[]>([
@@ -244,7 +261,18 @@ export class HomeComponent implements OnInit {
   navigateToForum(): void {
     this.router.navigate(['/forum']);
   }
+  
+  navigateToSettings(): void {
+    this.router.navigate(['/settings']);
+  }
 
+  navigateToNotifications(): void {
+    this.router.navigate(['/notifications']);
+  }
+
+  navigateToProfile(): void {
+    this.router.navigate(['/profile']);
+  }
   /**
    * Get current date for display
    */
