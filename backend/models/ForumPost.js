@@ -48,6 +48,13 @@ const ForumPostSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    dislikedBy: {
+        type: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }],
+        default: []
+    },
     isActive: {
         type: Boolean,
         default: true
