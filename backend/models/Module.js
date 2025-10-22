@@ -7,7 +7,7 @@ const moduleSchema = new mongoose.Schema({
     ref: 'Course',
     required: true
   },
-  name: {
+  title: {
     type: String,
     required: true,
     trim: true
@@ -25,6 +25,10 @@ const moduleSchema = new mongoose.Schema({
     default: true
   },
   createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
     type: Date,
     default: Date.now
   }

@@ -2,6 +2,12 @@
 const mongoose = require('mongoose');
 
 const courseSchema = new mongoose.Schema({
+  code: {
+    type: String,
+    required: true,
+    trim: true,
+    unique: true
+  },
   name: {
     type: String,
     required: true,
@@ -15,9 +21,28 @@ const courseSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  lecturer: {
+    name: {
+      type: String,
+      required: true
+    },
+    avatarUrl: {
+      type: String,
+      default: ''
+    }
+  },
+  status: {
+    type: String,
+    enum: ['Active', 'Inactive'],
+    default: 'Active'
+  },
   isActive: {
     type: Boolean,
     default: true
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   },
   createdAt: {
     type: Date,
