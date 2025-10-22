@@ -312,6 +312,10 @@ export class ApiService {
     return this.http.post(`${this.baseUrl}/forum/posts/${postId}/comments`, commentData, { headers: this.getHeaders() });
   }
 
+  getForumTrending(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/forum/trending`, { headers: this.getHeaders() });
+  }
+
   // Message Methods
   getConversations(): Observable<any> {
     return this.http.get(`${this.baseUrl}/messages/conversations`, { headers: this.getHeaders() });
